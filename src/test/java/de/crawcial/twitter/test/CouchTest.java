@@ -1,3 +1,5 @@
+package de.crawcial.twitter.test;
+
 import com.google.gson.JsonObject;
 import org.junit.Test;
 import org.lightcouch.CouchDbClient;
@@ -10,12 +12,12 @@ public class CouchTest {
     @Test
     public void testDatabaseConnection() throws Exception {
         CouchDbClient dbClient;
-        dbClient = new CouchDbClient("cra-twitter-couch", true, "https", "localhost", 6984, null, null);
+        dbClient = new CouchDbClient("couchdb.properties");
         JsonObject json = new JsonObject();
-        json.addProperty("test","content");
+        json.addProperty("test", "content");
         Response response = dbClient.save(json);
         assert dbClient.contains(response.getId());
-        dbClient.remove(response.getId(),response.getRev());
+        dbClient.remove(response.getId(), response.getRev());
         assert !dbClient.contains(response.getId());
     }
 }

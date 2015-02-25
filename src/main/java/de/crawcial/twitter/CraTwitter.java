@@ -28,11 +28,23 @@ public class CraTwitter {
     final static private Logger logger = LoggerFactory.getLogger(CraTwitter.class);
 
     public static void main(String[] args) throws TwitterException, IOException {
+        startAnalysis(null);
+    }
+
+    public static void startAnalysis(String[] overrideTerms) throws TwitterException, IOException {
         // Load properties from disk
         Properties properties = Utils.loadParams(propertiesFile);
 
-        // Separate terms
-        List<String> terms = Arrays.asList(properties.getProperty("terms").split("\\s*,\\s*"));
+        // Set terms
+        List<String> terms;
+
+        if (overrideTerms != null) {
+            // Terms in config override
+            terms = Arrays.asList(overrideTerms);
+        } else {
+            // Separate terms
+            terms = Arrays.asList(properties.getProperty("terms").split("\\s*,\\s*"));
+        }
 
         // Get timing values
         int time = Integer.valueOf(properties.getProperty("time"));
@@ -45,7 +57,6 @@ public class CraTwitter {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.exit(0);
     }
 
     public static Authentication getAuth(Properties properties) throws TwitterException, IOException {
