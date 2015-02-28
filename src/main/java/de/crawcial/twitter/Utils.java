@@ -6,7 +6,7 @@ import java.util.Properties;
 /**
  * Created by Sebastian Lauber on 21.02.15.
  */
-public class Utils {
+class Utils {
     public static Properties loadParams(String name) {
         Properties props = new Properties();
         InputStream is;

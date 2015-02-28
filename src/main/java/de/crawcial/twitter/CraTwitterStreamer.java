@@ -7,34 +7,34 @@ package de.crawcial.twitter;
 import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Constants;
+import com.twitter.hbc.core.StatsReporter;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.BasicClient;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.twitter4j.Twitter4jStatusClient;
-import org.lightcouch.CouchDbClient;
+import de.crawcial.database.DatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import twitter4j.StatusListener;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class CraTwitterStreamer {
+class CraTwitterStreamer {
 
     final static private Logger logger = LoggerFactory.getLogger(CraTwitterStreamer.class);
-    private final CouchDbClient dbClient;
-    // A bare bones StatusStreamHandler, which extends listener and gives some extra functionality
-    private final StatusListener listener1;
-    private Authentication auth;
-    private List<String> terms;
-    private int time;
-    private int reps;
+    private final StatusListener stListener;
+    private final Authentication auth;
+    private final List<String> terms;
+    private final int time;
+    private final int reps;
 
-    public CraTwitterStreamer(Authentication auth, List<String> terms, int time, int reps) {
+    public CraTwitterStreamer(Authentication auth, List<String> terms, int time, int reps, boolean downloadMedia) {
         // Receive OAuth params
         this.auth = auth;
 
@@ -42,18 +42,15 @@ public class CraTwitterStreamer {
         this.time = time;
         this.reps = reps;
 
-        //Setup CouchDB
-        dbClient = new CouchDbClient("couchdb.properties");
-
         //Setup the StatusListener
-        listener1 = new CraTwitterStatusListener(dbClient);
+        stListener = new CraTwitterStatusListener(downloadMedia);
 
         // Terms for filtering
         this.terms = terms;
         logger.info("Filtering tweets with terms {}", terms.toString());
     }
 
-    public void oauth() throws InterruptedException {
+    public long loadAndPersistStream(int threads) throws InterruptedException, IOException {
         // Create an appropriately sized blocking queue
         BlockingQueue<String> queue = new LinkedBlockingQueue<>(1000);
 
@@ -74,29 +71,54 @@ public class CraTwitterStreamer {
 
         // Create an executor service which will spawn threads to do the actual work of parsing the incoming messages and
         // calling the listeners on each message
-        int numProcessingThreads = 8;
-        ExecutorService service = Executors.newFixedThreadPool(numProcessingThreads);
+        ExecutorService service = Executors.newFixedThreadPool(threads);
 
         // Wrap our BasicClient with the twitter4j client
         Twitter4jStatusClient t4jClient = new Twitter4jStatusClient(
-                client, queue, Lists.newArrayList(listener1), service);
+                client, queue, Lists.newArrayList(stListener), service);
 
 
         // Establish a connection
         t4jClient.connect();
-        for (int thr = 0; thr < numProcessingThreads; ++thr) {
-            // This must be called once per processing thread
+
+        // Wait for network connectivity
+        while (t4jClient.getStatsTracker().getNumConnects() == 0) {
+            Thread.sleep(50);
+        }
+
+        if (t4jClient.isDone()) {
+            throw new IOException("Endpoint unreachable");
+        }
+
+        // Start processing threads
+        for (int thr = 0; thr < threads; ++thr) {
             t4jClient.process();
         }
+
+        StatsReporter.StatsTracker tracker = t4jClient.getStatsTracker();
 
         // Keeping this tool alive as set up in the properties file
         for (int i = 0; i < reps; ++i) {
             Thread.sleep(time);
-            logger.info("- Current message count: {}", client.getStatsTracker().getNumMessages());
+            logger.info("- # - Current message count: {}", tracker.getNumMessages());
+            logger.info("- # - Connects: {}, Disconnects: {}, Dropped messages: {}", tracker.getNumConnects(),
+                    tracker.getNumDisconnects(), tracker.getNumMessagesDropped());
         }
         client.stop();
         Thread.sleep(2500);
-        dbClient.shutdown();
+
+        // Wait for worker threads
+        while (!client.isDone()) {
+            Thread.sleep(1000);
+        }
+
+        // Perform a clean shutdown
+        DatabaseService.getInstance().shutdown();
+
+        Thread.sleep(2500);
+        logger.info("Messages dropped: {}, events dropped: {}",
+                tracker.getNumMessagesDropped(), tracker.getNumClientEventsDropped());
+        return client.getStatsTracker().getNumMessages();
     }
 
 }

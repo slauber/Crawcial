@@ -10,20 +10,32 @@ import org.lightcouch.CouchDbClient;
  */
 
 public class StreamingTest {
-    final String dbName = "cra-twitter-couch";
-    final String[] terms = {"twitter"};
+    private final String[] terms = {"21ReasonsWhyWeLoveJustin"};
 
     @Before
     public void setUp() throws Exception {
+        // Trash old database
         CouchDbClient dbClient = new CouchDbClient("couchdb.properties");
+        String dbName = "cra-twitter-couch";
         dbClient.context().deleteDB(dbName, "delete database");
         dbClient.shutdown();
     }
 
     @Test
-    public void testName() throws Exception {
-        CraTwitter.startAnalysis(terms);
+    public void streamingTestWithPersistence() throws Exception {
+        // Start analysis with predefined terms
+        long downloaded = CraTwitter.startAnalysis(terms, true);
+
+        // Query for all documents and get document count
         CouchDbClient dbClient = new CouchDbClient("couchdb_no_new.properties");
         dbClient.context().ensureFullCommit();
+
+        // -1 for the design document
+        long db = dbClient.context().info().getDocCount() - 1;
+        System.out.println("Crawler: " + downloaded);
+        System.out.println("DB: " + db);
+
+        // Test whether all downloaded tweets are persisted
+        assert (downloaded == db);
     }
 }

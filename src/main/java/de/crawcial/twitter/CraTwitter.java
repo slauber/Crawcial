@@ -23,15 +23,15 @@ import java.util.Properties;
 public class CraTwitter {
 
     // Properties filename
-    static final String propertiesFile = "config";
+    private static final String propertiesFile = "config";
 
     final static private Logger logger = LoggerFactory.getLogger(CraTwitter.class);
 
     public static void main(String[] args) throws TwitterException, IOException {
-        startAnalysis(null);
+        startAnalysis(null, true);
     }
 
-    public static void startAnalysis(String[] overrideTerms) throws TwitterException, IOException {
+    public static long startAnalysis(String[] overrideTerms, boolean downloadMedia) throws TwitterException, IOException {
         // Load properties from disk
         Properties properties = Utils.loadParams(propertiesFile);
 
@@ -51,15 +51,17 @@ public class CraTwitter {
         int reps = Integer.valueOf(properties.getProperty("reps"));
 
         // Create new TwitterStreamer and do the auth if required
-        CraTwitterStreamer craTwitterStreamer = new CraTwitterStreamer(getAuth(properties), terms, time, reps);
+        CraTwitterStreamer craTwitterStreamer = new CraTwitterStreamer(getAuth(properties), terms, time, reps, downloadMedia);
         try {
-            craTwitterStreamer.oauth();
+            // return craTwitterStreamer.loadAndPersistStream(8);
+            return craTwitterStreamer.loadAndPersistStream(Runtime.getRuntime().availableProcessors());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return -1;
     }
 
-    public static Authentication getAuth(Properties properties) throws TwitterException, IOException {
+    private static Authentication getAuth(Properties properties) throws TwitterException, IOException {
         // Check for token & secret in properties
         if (!properties.containsKey("token") && !properties.containsKey("tokensecret")) {
 
