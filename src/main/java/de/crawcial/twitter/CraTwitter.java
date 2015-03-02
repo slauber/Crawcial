@@ -28,12 +28,12 @@ public class CraTwitter {
     final static private Logger logger = LoggerFactory.getLogger(CraTwitter.class);
 
     public static void main(String[] args) throws TwitterException, IOException {
-        startAnalysis(null, true);
+        startAnalysis(null, true, 30);
     }
 
-    public static long startAnalysis(String[] overrideTerms, boolean downloadMedia) throws TwitterException, IOException {
+    public static long startAnalysis(String[] overrideTerms, boolean downloadMedia, long time) throws TwitterException, IOException {
         // Load properties from disk
-        Properties properties = Utils.loadParams(propertiesFile);
+        Properties properties = Utils.loadParams(propertiesFile, false);
 
         // Set terms
         List<String> terms;
@@ -46,12 +46,8 @@ public class CraTwitter {
             terms = Arrays.asList(properties.getProperty("terms").split("\\s*,\\s*"));
         }
 
-        // Get timing values
-        int time = Integer.valueOf(properties.getProperty("time"));
-        int reps = Integer.valueOf(properties.getProperty("reps"));
-
         // Create new TwitterStreamer and do the auth if required
-        CraTwitterStreamer craTwitterStreamer = new CraTwitterStreamer(getAuth(properties), terms, time, reps, downloadMedia);
+        CraTwitterStreamer craTwitterStreamer = new CraTwitterStreamer(getAuth(properties), terms, time, downloadMedia);
         try {
             // return craTwitterStreamer.loadAndPersistStream(8);
             return craTwitterStreamer.loadAndPersistStream(Runtime.getRuntime().availableProcessors());
@@ -61,7 +57,8 @@ public class CraTwitter {
         return -1;
     }
 
-    private static Authentication getAuth(Properties properties) throws TwitterException, IOException {
+
+    static Authentication getAuth(Properties properties) throws TwitterException, IOException {
         // Check for token & secret in properties
         if (!properties.containsKey("token") && !properties.containsKey("tokensecret")) {
 

@@ -31,19 +31,21 @@ class CraTwitterStreamer {
     private final StatusListener stListener;
     private final Authentication auth;
     private final List<String> terms;
-    private final int time;
-    private final int reps;
+    private final long time;
+    private final DatabaseService ds = DatabaseService.getInstance();
 
-    public CraTwitterStreamer(Authentication auth, List<String> terms, int time, int reps, boolean downloadMedia) {
+    public CraTwitterStreamer(Authentication auth, List<String> terms, long time, boolean downloadMedia) {
         // Receive OAuth params
         this.auth = auth;
 
-        // Timing parameters
+        // Timing parameter
         this.time = time;
-        this.reps = reps;
 
         //Setup the StatusListener
-        stListener = new CraTwitterStatusListener(downloadMedia);
+        stListener = new CraTwitterStatusListener();
+
+        // Reset DatabaseService & set download mode
+        ds.init(downloadMedia);
 
         // Terms for filtering
         this.terms = terms;
@@ -98,27 +100,26 @@ class CraTwitterStreamer {
         StatsReporter.StatsTracker tracker = t4jClient.getStatsTracker();
 
         // Keeping this tool alive as set up in the properties file
-        for (int i = 0; i < reps; ++i) {
-            Thread.sleep(time);
-            logger.info("- # - Current message count: {}", tracker.getNumMessages());
-            logger.info("- # - Connects: {}, Disconnects: {}, Dropped messages: {}", tracker.getNumConnects(),
-                    tracker.getNumDisconnects(), tracker.getNumMessagesDropped());
-        }
+        Thread.sleep(time);
+        logger.info("- # - Current message count: {}", tracker.getNumMessages());
+        logger.info("- # - Connects: {}, Disconnects: {}, Dropped messages: {}", tracker.getNumConnects(),
+                tracker.getNumDisconnects(), tracker.getNumMessagesDropped());
+
         client.stop();
-        Thread.sleep(2500);
+        Thread.sleep(1500);
 
         // Wait for worker threads
         while (!client.isDone()) {
-            Thread.sleep(1000);
+            Thread.sleep(250);
         }
-
         // Perform a clean shutdown
+        long delta = ds.getCnt();
         DatabaseService.getInstance().shutdown();
 
         Thread.sleep(2500);
         logger.info("Messages dropped: {}, events dropped: {}",
                 tracker.getNumMessagesDropped(), tracker.getNumClientEventsDropped());
-        return client.getStatsTracker().getNumMessages();
+        return client.getStatsTracker().getNumMessages() - delta;
     }
 
 }

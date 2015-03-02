@@ -7,7 +7,7 @@ import java.util.Properties;
  * Created by Sebastian Lauber on 21.02.15.
  */
 class Utils {
-    public static Properties loadParams(String name) {
+    public static Properties loadParams(String name, boolean failGraceful) throws IOException {
         Properties props = new Properties();
         InputStream is;
 
@@ -26,14 +26,18 @@ class Utils {
             }
             props.load(is);
         } catch (Exception e) {
-            return null;
+            if (failGraceful) {
+                return null;
+            } else {
+                throw e;
+            }
         }
         return props;
     }
 
     public static void saveParamChanges(String name, String property, String value) {
         try {
-            Properties props = loadParams(name);
+            Properties props = loadParams(name, true);
             if (props == null) {
                 props = new Properties();
             }

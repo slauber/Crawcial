@@ -2,6 +2,8 @@ package de.crawcial.database;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.lightcouch.CouchDbClient;
+import org.lightcouch.DesignDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import twitter4j.MediaEntity;
@@ -18,15 +20,38 @@ import java.util.List;
 public class DatabaseService {
     private static final DatabaseService ourInstance = new DatabaseService();
     private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
-    private static final int bufferLimit = 100;
+    private static final int bufferLimit = 250;
+    private static boolean downloadMedia = false;
 
     private static ArrayList<JsonObject> dbQueue = new ArrayList<>(bufferLimit);
+    private static int cnt;
 
     private DatabaseService() {
     }
 
     public static DatabaseService getInstance() {
         return ourInstance;
+    }
+
+    public void init(boolean downloadMedia) {
+        DatabaseService.downloadMedia = downloadMedia;
+        cnt = 0;
+        CouchDbClient dbClient = new CouchDbClient("couchdb.properties");
+        DesignDocument designDoc = dbClient.design().getFromDesk("crawcial");
+        dbClient.design().synchronizeWithDb(designDoc);
+        dbClient.shutdown();
+    }
+
+    public void increaseCnt() {
+        ++cnt;
+    }
+
+    public int getCnt() {
+        return cnt;
+    }
+
+    boolean getDownloadMedia() {
+        return downloadMedia;
     }
 
     public void shutdown() {
@@ -41,7 +66,7 @@ public class DatabaseService {
         new Thread(new DatabaseWriter(dbQueueClone)).start();
     }
 
-    public void persist(Status twitterStatus, boolean downloadMedia) {
+    public void persist(Status twitterStatus) {
         // Prepares the Status object and queues it for persisting
         dbQueue.add(prepareForQueue(twitterStatus));
 
@@ -58,14 +83,14 @@ public class DatabaseService {
         // Add media urls
         List<MediaEntity> media = Arrays.asList(status.getMediaEntities());
         if (media.size() > 0) {
-            JsonArray jsLinks = new JsonArray();
+            JsonArray jsMedia = new JsonArray();
             for (MediaEntity mediaEntity : media) {
                 JsonObject jsMediaO = new JsonObject();
                 jsMediaO.addProperty("type", mediaEntity.getType());
                 jsMediaO.addProperty("url", mediaEntity.getMediaURLHttps());
-                jsLinks.add(jsMediaO);
+                jsMedia.add(jsMediaO);
             }
-            js.add("media", jsLinks);
+            js.add("media", jsMedia);
         }
 
         // Add links
@@ -84,7 +109,7 @@ public class DatabaseService {
         // Add further content to JsonObject
         js.addProperty("screenname", status.getUser().getScreenName());
         js.addProperty("message", status.getText());
-        js.addProperty("twitter_id", status.getId());
+        js.addProperty("_id", String.valueOf(status.getId()));
         return js;
     }
 }

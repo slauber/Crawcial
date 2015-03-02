@@ -2,7 +2,6 @@ package de.crawcial.database;
 
 import com.google.gson.JsonObject;
 import org.lightcouch.CouchDbClient;
-import org.lightcouch.DesignDocument;
 import org.lightcouch.NoDocumentException;
 import org.lightcouch.Response;
 
@@ -22,8 +21,6 @@ class DatabaseWriter implements Runnable {
     }
 
     void checkAttachments() {
-        DesignDocument designDoc = dbClient.design().getFromDesk("crawcial");
-        dbClient.design().synchronizeWithDb(designDoc);
         try {
             List<JsonObject> noDownloads = dbClient.view("crawcial/noDownloads").includeDocs(true).query(JsonObject.class);
             for (JsonObject element : noDownloads) {
@@ -43,18 +40,22 @@ class DatabaseWriter implements Runnable {
 
     @Override
     public void run() {
-        checkAttachments();
+        if (DatabaseService.getInstance().getDownloadMedia()) {
+            checkAttachments();
+        }
         List<Response> responses = dbClient.bulk(objects, true);
-        for (int i = 0; i < objects.size(); ++i) {
-            JsonObject object = objects.get(i);
-            if (object.has("media")) {
-                Response response = responses.get(i);
-                try {
-                    Thread.sleep((int) (3 * Math.random()));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        if (DatabaseService.getInstance().getDownloadMedia()) {
+            for (int i = 0; i < objects.size(); ++i) {
+                JsonObject object = objects.get(i);
+                if (object.has("media")) {
+                    Response response = responses.get(i);
+                    try {
+                        Thread.sleep((int) (15 * Math.random()));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    new Thread(new DatabaseAttachment(response.getId(), response.getRev(), object)).start();
                 }
-                new Thread(new DatabaseAttachment(response.getId(), response.getRev(), object)).start();
             }
         }
         dbClient.shutdown();
