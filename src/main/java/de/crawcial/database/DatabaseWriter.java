@@ -23,9 +23,16 @@ class DatabaseWriter implements Runnable {
     void checkAttachments() {
         try {
             List<JsonObject> noDownloads = dbClient.view("crawcial/noDownloads").includeDocs(true).query(JsonObject.class);
+            int start = (noDownloads.size() > 100 ? noDownloads.size() - 100 : 0);
+            noDownloads = noDownloads.subList(start, noDownloads.size());
             for (JsonObject element : noDownloads) {
                 String id = element.get("_id").getAsString();
                 String rev = element.get("_rev").getAsString();
+                try {
+                    Thread.sleep((int) (15 * Math.random()));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 new Thread(new DatabaseAttachment(id, rev, element));
             }
         } catch (NoDocumentException e) {
@@ -41,7 +48,7 @@ class DatabaseWriter implements Runnable {
     @Override
     public void run() {
         if (DatabaseService.getInstance().getDownloadMedia()) {
-            checkAttachments();
+//            checkAttachments();
         }
         List<Response> responses = dbClient.bulk(objects, true);
         if (DatabaseService.getInstance().getDownloadMedia()) {

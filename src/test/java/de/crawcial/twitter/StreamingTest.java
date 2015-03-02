@@ -41,34 +41,35 @@ public class StreamingTest {
         assert (downloaded == db);
     }
 
-    @Test
-    public void test100000WithoutMedia() throws TwitterException, IOException {
-        final String[] terms = {"twitter"};
-        testStreaming(100000, terms, false);
-    }
+    /*
+        @Test
+        public void test100000WithoutMedia() throws TwitterException, IOException {
+            final String[] terms = {"twitter"};
+            testStreaming(100000, terms, false);
+        }
 
-    @Test
-    public void test10000WithMedia() throws TwitterException, IOException {
-        final String[] terms = {"#SanaAwareKa"};
-        testStreaming(10000, terms, true);
-    }
+        @Test
+        public void test10000WithMedia() throws TwitterException, IOException {
+            final String[] terms = {"#SanaAwareKa"};
+            testStreaming(10000, terms, true);
+        }
 
-    @Test
-    public void test20000WithoutMedia() throws TwitterException, IOException {
-        final String[] terms = {"#SanaAwareKa"};
-        testStreaming(20000, terms, false);
-    }
-
+        @Test
+        public void test20000WithoutMedia() throws TwitterException, IOException {
+            final String[] terms = {"#SanaAwareKa"};
+            testStreaming(20000, terms, false);
+        }
+    */
     @Test
     public void test20000WithMedia() throws TwitterException, IOException {
         final String[] terms = {"twitter"};
         testStreaming(200000, terms, true);
     }
-
+/*
     @Test
     public void test40000WithoutMedia() throws TwitterException, IOException {
         final String[] terms = {"twitter"};
         testStreaming(40000, terms, false);
     }
-
+*/
 }
