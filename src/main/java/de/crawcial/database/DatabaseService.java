@@ -20,11 +20,13 @@ import java.util.List;
 public class DatabaseService {
     private static final DatabaseService ourInstance = new DatabaseService();
     private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
-    private static final int bufferLimit = 250;
+    private static final int bufferLimit = 100;
     private static boolean downloadMedia = false;
 
     private static ArrayList<JsonObject> dbQueue = new ArrayList<>(bufferLimit);
     private static int cnt;
+
+    private AttachmentDispatcher ad = AttachmentDispatcher.getInstance();
 
     private DatabaseService() {
     }
@@ -35,6 +37,9 @@ public class DatabaseService {
 
     public void init(boolean downloadMedia) {
         DatabaseService.downloadMedia = downloadMedia;
+        if (downloadMedia) {
+            ad.init();
+        }
         cnt = 0;
         CouchDbClient dbClient = new CouchDbClient("couchdb.properties");
         DesignDocument designDoc = dbClient.design().getFromDesk("crawcial");
@@ -54,9 +59,13 @@ public class DatabaseService {
         return downloadMedia;
     }
 
-    public void shutdown() {
+    public void shutdown() throws InterruptedException {
         // On shutdown, flush the queue
         flushQueue();
+        AttachmentDispatcher.getInstance().shutdown();
+        if (AttachmentDispatcher.getInstance().running) {
+            AttachmentDispatcher.getInstance().join();
+        }
     }
 
     private void flushQueue() {

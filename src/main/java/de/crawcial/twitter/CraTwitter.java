@@ -47,7 +47,10 @@ public class CraTwitter {
         }
 
         // Create new TwitterStreamer and do the auth if required
-        CraTwitterStreamer craTwitterStreamer = new CraTwitterStreamer(getAuth(properties), terms, time, downloadMedia);
+        CraTwitterStreamer craTwitterStreamer = CraTwitterStreamer.getInstance();
+
+        craTwitterStreamer.setConfig(getAuth(properties), terms, time, downloadMedia);
+
         try {
             // return craTwitterStreamer.loadAndPersistStream(8);
             return craTwitterStreamer.loadAndPersistStream(Runtime.getRuntime().availableProcessors());

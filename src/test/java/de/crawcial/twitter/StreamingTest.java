@@ -41,35 +41,33 @@ public class StreamingTest {
         assert (downloaded == db);
     }
 
-    /*
-        @Test
-        public void test100000WithoutMedia() throws TwitterException, IOException {
-            final String[] terms = {"twitter"};
-            testStreaming(100000, terms, false);
-        }
-
-        @Test
-        public void test10000WithMedia() throws TwitterException, IOException {
-            final String[] terms = {"#SanaAwareKa"};
-            testStreaming(10000, terms, true);
-        }
-
-        @Test
-        public void test20000WithoutMedia() throws TwitterException, IOException {
-            final String[] terms = {"#SanaAwareKa"};
-            testStreaming(20000, terms, false);
-        }
-    */
     @Test
-    public void test20000WithMedia() throws TwitterException, IOException {
+    public void test100sWithoutMedia() throws TwitterException, IOException {
         final String[] terms = {"twitter"};
-        testStreaming(200000, terms, true);
+        testStreaming(100000, terms, false);
     }
-/*
+
     @Test
-    public void test40000WithoutMedia() throws TwitterException, IOException {
-        final String[] terms = {"twitter"};
-        testStreaming(40000, terms, false);
+    public void test10sWithMedia() throws TwitterException, IOException {
+        final String[] terms = {"#SanaAwareKa"};
+        testStreaming(10000, terms, true);
     }
-*/
+
+    @Test
+    public void test20sWithoutMedia() throws TwitterException, IOException {
+        final String[] terms = {"#SanaAwareKa"};
+        testStreaming(20000, terms, false);
+    }
+
+    @Test
+    public void test20MinWithMedia() throws TwitterException, IOException {
+        final String[] terms = {"selfie", "boobs", "tits", "ass", "party", "beer", "photography", "sunday", "#DearMe", "#5ONTHEWALL", "#FestivalMarvin", "tatort"};
+        testStreaming(1200000, terms, true);
+    }
+
+    @Test
+    public void test40sWithoutMedia() throws TwitterException, IOException {
+        final String[] terms = {"twitter"};
+        testStreaming(4000, terms, false);
+    }
 }

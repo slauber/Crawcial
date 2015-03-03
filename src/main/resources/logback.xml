@@ -1,21 +1,38 @@
 <configuration>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="FILE_DEBUG" class="ch.qos.logback.core.FileAppender">
+        <append>false</append>
+        <file>crawcial_debug.log</file>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%date %level [%thread] [%file:%line] %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!--<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>testFile.log</file>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <append>false</append>
+        <file>crawcial_info.log</file>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%date %level [%thread] [%file:%line] %msg%n</pattern>
         </encoder>
-    </appender> -->
+    </appender>
 
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %level [%thread] - %msg%n</pattern>
+        </encoder>
+    </appender>
 
     <root level="debug">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="FILE_DEBUG"/>
         <appender-ref ref="STDOUT"/>
     </root>
+
+
 </configuration>
