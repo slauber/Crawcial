@@ -21,7 +21,6 @@ class DatabaseAttachment implements Runnable {
     final private int maxRetry = 10;
     private String rev;
     private int retryCnt = 0;
-
     // Gets initialized with doc id, rev and json
     public DatabaseAttachment(String id, String rev, JsonObject json) {
         this.json = json;
@@ -29,6 +28,9 @@ class DatabaseAttachment implements Runnable {
         this.rev = rev;
     }
 
+    public String getId() {
+        return id;
+    }
 
     @Override
     public void run() {
@@ -90,12 +92,16 @@ class DatabaseAttachment implements Runnable {
                 // Put back to queue, if not exceeded maxRetried
                 if (!isMaxRetried()) {
                     increaseRetryCnt();
-                    logger.error("IOException during attachment download - {}", e.getLocalizedMessage());
+                    logger.error("IOException during attachment download - {} - {}", id, e.getLocalizedMessage());
                     logger.error("retrying... - {}", e.getLocalizedMessage());
-                    AttachmentDispatcher.getInstance().addDownloader(this);
+                    try {
+                        DatabaseAttachDispatcher.getInstance().addDownloader(this);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
                 } else {
                     // Else flag media as unavailable
-                    logger.error("IOException during attachment download - {}", e.getLocalizedMessage());
+                    logger.error("IOException during attachment download - {} - {}", id, e.getLocalizedMessage());
                     mediaArray.get(i).getAsJsonObject().addProperty("unavailable", true);
                     downloadError = true;
                 }
@@ -110,7 +116,7 @@ class DatabaseAttachment implements Runnable {
                 rev = dbClient.update(json).getRev();
             }
         }
-        AttachmentDispatcher.getInstance().downloadDone(this);
+        DatabaseAttachDispatcher.getInstance().downloadDone(this);
         dbClient.shutdown();
     }
 

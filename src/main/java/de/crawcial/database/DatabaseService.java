@@ -26,7 +26,7 @@ public class DatabaseService {
     private static ArrayList<JsonObject> dbQueue = new ArrayList<>(bufferLimit);
     private static int cnt;
 
-    private AttachmentDispatcher ad = AttachmentDispatcher.getInstance();
+    private DatabaseAttachDispatcher dad;
 
     private DatabaseService() {
     }
@@ -38,7 +38,10 @@ public class DatabaseService {
     public void init(boolean downloadMedia) {
         DatabaseService.downloadMedia = downloadMedia;
         if (downloadMedia) {
-            ad.init();
+            DatabaseAttachDispatcher.getInstance().reset();
+            dad = DatabaseAttachDispatcher.getInstance();
+            dad.start();
+            logger.debug("AttachmentDispatcher started - State: {}", dad.getState());
         }
         cnt = 0;
         CouchDbClient dbClient = new CouchDbClient("couchdb.properties");
@@ -61,18 +64,26 @@ public class DatabaseService {
 
     public void shutdown() throws InterruptedException {
         // On shutdown, flush the queue
-        flushQueue();
-        AttachmentDispatcher.getInstance().shutdown();
-        if (AttachmentDispatcher.getInstance().running) {
-            AttachmentDispatcher.getInstance().join();
+        logger.debug("DatabaseService shutdown");
+        flushQueue(true);
+        if (dad != null) {
+            logger.debug("AttachmentDispatcher shutdown initiated");
+            dad.shutdown();
+            logger.debug("AttachmentDispatcher shutdown received - State: {}", dad.getState());
+            dad.join();
+            logger.debug("AttachmentDispatcher shutdown completed - State: {}", dad.getState());
         }
     }
 
-    private void flushQueue() {
+    private void flushQueue(boolean block) throws InterruptedException {
         // Replaces the dbQueue with an empty one and run the DatabaseWriter
         ArrayList<JsonObject> dbQueueClone = (ArrayList<JsonObject>) dbQueue.clone();
         dbQueue = new ArrayList<>(bufferLimit);
-        new Thread(new DatabaseWriter(dbQueueClone)).start();
+        Thread t = new Thread(new DatabaseWriter(dbQueueClone));
+        t.start();
+        if (block) {
+            t.join();
+        }
     }
 
     public void persist(Status twitterStatus) {
@@ -81,7 +92,11 @@ public class DatabaseService {
 
         // flushQueue triggered if bufferLimit exceeded
         if (dbQueue.size() >= bufferLimit) {
-            flushQueue();
+            try {
+                flushQueue(false);
+            } catch (InterruptedException e) {
+                logger.error("Error while persisting: {}", e.getLocalizedMessage());
+            }
         }
     }
 

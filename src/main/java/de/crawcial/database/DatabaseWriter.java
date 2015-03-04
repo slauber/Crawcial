@@ -3,6 +3,8 @@ package de.crawcial.database;
 import com.google.gson.JsonObject;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
  */
 class DatabaseWriter implements Runnable {
 
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseWriter.class);
     private final ArrayList<JsonObject> objects;
     private final CouchDbClient dbClient = new CouchDbClient("couchdb.properties");
 
@@ -24,13 +27,18 @@ class DatabaseWriter implements Runnable {
     public void run() {
         List<Response> responses = dbClient.bulk(objects, true);
         if (DatabaseService.getInstance().getDownloadMedia()) {
-            AttachmentDispatcher ad = AttachmentDispatcher.getInstance();
+            DatabaseAttachDispatcher dad = DatabaseAttachDispatcher.getInstance();
             for (int i = 0; i < objects.size(); ++i) {
                 JsonObject object = objects.get(i);
                 if (object.has("media")) {
                     Response response = responses.get(i);
-                    ad.addDownloader(
-                            new DatabaseAttachment(response.getId(), response.getRev(), object));
+                    try {
+                        logger.debug("Try to download: {}", response.getId());
+                        logger.debug("Downloader state: {}", dad.getState());
+                        dad.addDownloader(
+                                new DatabaseAttachment(response.getId(), response.getRev(), object));
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
         }

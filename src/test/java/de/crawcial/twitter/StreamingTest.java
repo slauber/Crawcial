@@ -1,6 +1,8 @@
 package de.crawcial.twitter;
 
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.lightcouch.CouchDbClient;
 import twitter4j.TwitterException;
 
@@ -10,8 +12,11 @@ import java.io.IOException;
  * Created by Sebastian Lauber on 20.02.15.
  */
 
-
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class StreamingTest {
+    private final String[] terms = {"Coulson", "BroomWar", "#QuandoCrescerEu", "photography", "#AlisScared",
+            "DearMe", "#5ONTHEWALL", "#EndofEzria", "#LoUnicoQueNecesitoEs", "rip", "landscape", "beer", "party"};
+
     void removeDb(String name) {
 
 
@@ -42,32 +47,36 @@ public class StreamingTest {
     }
 
     @Test
-    public void test100sWithoutMedia() throws TwitterException, IOException {
+    public void t1est10sWithoutMedia() throws TwitterException, IOException {
         final String[] terms = {"twitter"};
-        testStreaming(100000, terms, false);
+        testStreaming(10000, terms, false);
     }
 
     @Test
-    public void test10sWithMedia() throws TwitterException, IOException {
-        final String[] terms = {"#SanaAwareKa"};
-        testStreaming(10000, terms, true);
+    public void t2est20sWithMedia() throws TwitterException, IOException {
+        testStreaming(20000, terms, true);
     }
 
     @Test
-    public void test20sWithoutMedia() throws TwitterException, IOException {
-        final String[] terms = {"#SanaAwareKa"};
+    public void t3est20sWithoutMedia() throws TwitterException, IOException {
+        final String[] terms = {"twitter"};
         testStreaming(20000, terms, false);
     }
 
     @Test
-    public void test20MinWithMedia() throws TwitterException, IOException {
-        final String[] terms = {"selfie", "boobs", "tits", "ass", "party", "beer", "photography", "sunday", "#DearMe", "#5ONTHEWALL", "#FestivalMarvin", "tatort"};
-        testStreaming(1200000, terms, true);
+    public void t4est30sWithoutMedia() throws TwitterException, IOException {
+        final String[] terms = {"twitter"};
+        testStreaming(30000, terms, false);
     }
 
     @Test
-    public void test40sWithoutMedia() throws TwitterException, IOException {
-        final String[] terms = {"twitter"};
-        testStreaming(4000, terms, false);
+    public void t5est200sWithMedia() throws TwitterException, IOException {
+        testStreaming(200000, terms, true);
     }
+
+    @Test
+    public void t6est4MinWithMedia() throws TwitterException, IOException {
+        testStreaming(240000, terms, true);
+    }
+
 }
