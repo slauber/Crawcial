@@ -76,6 +76,12 @@ class CraTwitterStreamer {
             // Add tracked terms
             endpoint.trackTerms(terms);
 
+            // Add tracked users
+            //endpoint.followings(List<Long>);
+
+            // Add tracked locations
+            //endpoint.locations(List< Location>)
+
             // Create a new BasicClient. By default gzip is enabled.
             BasicClient client = new ClientBuilder()
                     .hosts(Constants.STREAM_HOST)

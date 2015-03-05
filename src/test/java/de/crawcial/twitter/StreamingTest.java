@@ -75,8 +75,8 @@ public class StreamingTest {
     }
 
     @Test
-    public void t6est4MinWithMedia() throws TwitterException, IOException {
-        testStreaming(240000, terms, true);
+    public void t6est15MinWithMedia() throws TwitterException, IOException {
+        testStreaming(900000, terms, true);
     }
 
 }

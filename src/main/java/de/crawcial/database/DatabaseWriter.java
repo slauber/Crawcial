@@ -38,6 +38,7 @@ class DatabaseWriter implements Runnable {
                         dad.addDownloader(
                                 new DatabaseAttachment(response.getId(), response.getRev(), object));
                     } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }

@@ -21,6 +21,7 @@ class DatabaseAttachment implements Runnable {
     final private int maxRetry = 10;
     private String rev;
     private int retryCnt = 0;
+
     // Gets initialized with doc id, rev and json
     public DatabaseAttachment(String id, String rev, JsonObject json) {
         this.json = json;
@@ -78,9 +79,13 @@ class DatabaseAttachment implements Runnable {
                     rev = dbClient.saveAttachment(new ByteArrayInputStream(responseBytes), urlString, contentType,
                             id, rev).getRev();
                 } else {
-                    // Flag media as unavailable
-                    mediaArray.get(i).getAsJsonObject().addProperty("unavailable", true);
-                    downloadError = true;
+                    if (!isMaxRetried()) {
+                        logger.error("IOException during attachment download - {} - {}", id);
+                    } else {
+                        // Flag media as unavailable
+                        mediaArray.get(i).getAsJsonObject().addProperty("unavailable", true);
+                        downloadError = true;
+                    }
                 }
 
             } catch (MalformedURLException e) {
@@ -89,19 +94,12 @@ class DatabaseAttachment implements Runnable {
                 mediaArray.get(i).getAsJsonObject().addProperty("unavailable", true);
                 downloadError = true;
             } catch (IOException e) {
+                logger.error("IOException during attachment download - {} - {}", id, e.getLocalizedMessage());
                 // Put back to queue, if not exceeded maxRetried
                 if (!isMaxRetried()) {
-                    increaseRetryCnt();
-                    logger.error("IOException during attachment download - {} - {}", id, e.getLocalizedMessage());
-                    logger.error("retrying... - {}", e.getLocalizedMessage());
-                    try {
-                        DatabaseAttachDispatcher.getInstance().addDownloader(this);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
+                    retry();
                 } else {
                     // Else flag media as unavailable
-                    logger.error("IOException during attachment download - {} - {}", id, e.getLocalizedMessage());
                     mediaArray.get(i).getAsJsonObject().addProperty("unavailable", true);
                     downloadError = true;
                 }
@@ -122,6 +120,16 @@ class DatabaseAttachment implements Runnable {
 
     public void increaseRetryCnt() {
         ++retryCnt;
+    }
+
+    private void retry() {
+        increaseRetryCnt();
+        logger.error("retrying... - {}", id);
+        try {
+            DatabaseAttachDispatcher.getInstance().addDownloader(this);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
     }
 
     public boolean isMaxRetried() {

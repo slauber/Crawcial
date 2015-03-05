@@ -12,6 +12,7 @@ import twitter4j.URLEntity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -22,6 +23,10 @@ public class DatabaseService {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
     private static final int bufferLimit = 100;
     private static boolean downloadMedia = false;
+
+    private static HashSet<Long> hs1 = new HashSet<>(10000);
+    private static HashSet<Long> hs2 = new HashSet<>(10000);
+    private static boolean useHs1 = true;
 
     private static ArrayList<JsonObject> dbQueue = new ArrayList<>(bufferLimit);
     private static int cnt;
@@ -87,16 +92,42 @@ public class DatabaseService {
     }
 
     public void persist(Status twitterStatus) {
-        // Prepares the Status object and queues it for persisting
-        dbQueue.add(prepareForQueue(twitterStatus));
+        if (!isDuplicate(twitterStatus.getId())) {
+            // Prepares the Status object and queues it for persisting
+            dbQueue.add(prepareForQueue(twitterStatus));
 
-        // flushQueue triggered if bufferLimit exceeded
-        if (dbQueue.size() >= bufferLimit) {
-            try {
-                flushQueue(false);
-            } catch (InterruptedException e) {
-                logger.error("Error while persisting: {}", e.getLocalizedMessage());
+            // flushQueue triggered if bufferLimit exceeded
+            if (dbQueue.size() >= bufferLimit) {
+                try {
+                    flushQueue(false);
+                } catch (InterruptedException e) {
+                    logger.error("Error while persisting: {}", e.getLocalizedMessage());
+                }
             }
+        }
+    }
+
+    boolean isDuplicate(long statusId) {
+        if (useHs1 && hs1.size() >= 10000) {
+            useHs1 = false;
+            hs2 = new HashSet<>(10000);
+        }
+        if (!useHs1 && hs2.size() >= 10000) {
+            useHs1 = true;
+            hs1 = new HashSet<>(10000);
+        }
+
+        if (hs1.contains(statusId) || hs2.contains(statusId)) {
+            logger.warn("Duplicate detected: {}", statusId);
+            --cnt;
+            return true;
+        } else {
+            if (useHs1) {
+                hs1.add(statusId);
+            } else {
+                hs2.add(statusId);
+            }
+            return false;
         }
     }
 
