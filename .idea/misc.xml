@@ -13,6 +13,7 @@
   </component>
   <component name="ProjectPlainTextFileTypeManager">
     <file url="file://$PROJECT_DIR$/src/main/resources/design-docs/crawcial/allDownloads/map.js" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/design-docs/crawcial/views/allDownloads/map.js" />
     <file url="file://$PROJECT_DIR$/src/main/resources/design-docs/crawcial/views/noDownloads/map.js" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">

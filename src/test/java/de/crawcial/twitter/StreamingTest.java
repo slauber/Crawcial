@@ -53,8 +53,8 @@ public class StreamingTest {
     }
 
     @Test
-    public void t2est20sWithMedia() throws TwitterException, IOException {
-        testStreaming(20000, terms, true);
+    public void t2est120sWithMedia() throws TwitterException, IOException {
+        testStreaming(120000, terms, true);
     }
 
     @Test
@@ -78,5 +78,4 @@ public class StreamingTest {
     public void t6est15MinWithMedia() throws TwitterException, IOException {
         testStreaming(900000, terms, true);
     }
-
 }

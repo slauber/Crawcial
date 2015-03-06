@@ -4,25 +4,22 @@ package de.crawcial.twitter;
  * Created by Sebastian Lauber on 21.02.15.
  */
 
-import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Constants;
-import com.twitter.hbc.core.StatsReporter;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.BasicClient;
 import com.twitter.hbc.httpclient.auth.Authentication;
-import com.twitter.hbc.twitter4j.Twitter4jStatusClient;
 import de.crawcial.database.DatabaseService;
+import de.crawcial.database.LoadExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import twitter4j.StatusListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 class CraTwitterStreamer {
@@ -30,7 +27,6 @@ class CraTwitterStreamer {
     final static private Logger logger = LoggerFactory.getLogger(CraTwitterStreamer.class);
     static CraTwitterStreamer ourInstance = new CraTwitterStreamer();
     private final DatabaseService ds = DatabaseService.getInstance();
-    private StatusListener stListener;
     private Authentication auth;
     private List<String> terms;
     private long time;
@@ -48,8 +44,6 @@ class CraTwitterStreamer {
         // Timing parameter
         this.time = time;
 
-        //Setup the StatusListener
-        stListener = new CraTwitterStatusListener();
 
         // Reset DatabaseService & set download mode
         ds.init(downloadMedia);
@@ -76,12 +70,6 @@ class CraTwitterStreamer {
             // Add tracked terms
             endpoint.trackTerms(terms);
 
-            // Add tracked users
-            //endpoint.followings(List<Long>);
-
-            // Add tracked locations
-            //endpoint.locations(List< Location>)
-
             // Create a new BasicClient. By default gzip is enabled.
             BasicClient client = new ClientBuilder()
                     .hosts(Constants.STREAM_HOST)
@@ -91,35 +79,23 @@ class CraTwitterStreamer {
                     .build();
 
 
-            // Create an executor service which will spawn threads to do the actual work of parsing the incoming messages and
-            // calling the listeners on each message
-            ExecutorService service = Executors.newFixedThreadPool(threads);
+            // Start loadExecutors
+            LoadExecutor[] loadExecutors = new LoadExecutor[threads];
+            ArrayList<Thread> loadExecutorThreads = new ArrayList<>();
 
-            // Wrap our BasicClient with the twitter4j client
-            Twitter4jStatusClient t4jClient = new Twitter4jStatusClient(
-                    client, queue, Lists.newArrayList(stListener), service);
-
-
-            // Establish a connection
-            t4jClient.connect();
-
-            // Wait for network connectivity
-            while (t4jClient.getStatsTracker().getNumConnects() == 0) {
-                Thread.sleep(50);
+            for (int i = 0; i < threads; ++i) {
+                loadExecutors[i] = new LoadExecutor(queue, ds.getJsonObjectVector());
+                loadExecutorThreads.add(new Thread(loadExecutors[i]));
             }
 
-            if (t4jClient.isDone()) {
-                throw new IOException("Endpoint unreachable");
+            Iterator<Thread> loadExecutorThreadsIt = loadExecutorThreads.iterator();
+            while (loadExecutorThreadsIt.hasNext()) {
+                loadExecutorThreadsIt.next().start();
             }
 
-            // Start processing threads
-            for (int thr = 0; thr < threads; ++thr) {
-                t4jClient.process();
-            }
+            // Connect the hosebird client
+            client.connect();
 
-            StatsReporter.StatsTracker tracker = t4jClient.getStatsTracker();
-
-            // TODO: Handle disconnects https://dev.twitter.com/streaming/overview/messages-types#disconnect_messages
 
             // Keeping this tool alive as set up in the properties file
             if (running) {
@@ -130,26 +106,27 @@ class CraTwitterStreamer {
                 Thread.sleep(time);
             }
 
-            logger.info("- # - Connects: {}, Disconnects: {}, Dropped messages: {}", tracker.getNumConnects(),
-                    tracker.getNumDisconnects(), tracker.getNumMessagesDropped());
-
+            // Disconnect the hosebird client
             client.stop();
-            Thread.sleep(1500);
 
-            // Wait for worker threads
-            while (!client.isDone()) {
-                Thread.sleep(250);
+            // Shutdown loadExecutors gracefully and join their threads
+            for (LoadExecutor l : loadExecutors) {
+                l.shutdown();
             }
-            // Perform a clean shutdown
-            long delta = ds.getCnt();
-            DatabaseService.getInstance().shutdown();
 
-            Thread.sleep(2500);
-            logger.info("Messages dropped: {}, events dropped: {}",
-                    tracker.getNumMessagesDropped(), tracker.getNumClientEventsDropped());
-            return client.getStatsTracker().getNumMessages() - delta;
+            loadExecutorThreadsIt = loadExecutorThreads.iterator();
+            while (loadExecutorThreadsIt.hasNext()) {
+                loadExecutorThreadsIt.next().join();
+            }
+
+            // Shutdown the database service (AttachementExecutors / WriteExecutor)
+            ds.shutdown();
+
+
+            // Return the num of messages - warnings (that are not persisted)
+            return client.getStatsTracker().getNumMessages() - DatabaseService.getInstance().getWarningCnt();
         } else {
-            throw new NullPointerException("Config not set");
+            throw new IllegalStateException("Config not set");
         }
     }
 
