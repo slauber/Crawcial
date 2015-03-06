@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Sebastian Lauber on 27.02.15.
@@ -31,7 +34,8 @@ public class DatabaseService {
     private static ArrayList<JsonObject> dbQueue = new ArrayList<>(bufferLimit);
     private static int cnt;
 
-    private DatabaseAttachDispatcher dad;
+    private ThreadPoolExecutor tpe;
+    private LinkedBlockingQueue<Runnable> q;
 
     private DatabaseService() {
     }
@@ -40,19 +44,21 @@ public class DatabaseService {
         return ourInstance;
     }
 
-    public void init(boolean downloadMedia) {
+    public synchronized void init(boolean downloadMedia) {
         DatabaseService.downloadMedia = downloadMedia;
         if (downloadMedia) {
-            DatabaseAttachDispatcher.getInstance().reset();
-            dad = DatabaseAttachDispatcher.getInstance();
-            dad.start();
-            logger.debug("AttachmentDispatcher started - State: {}", dad.getState());
+            q = new LinkedBlockingQueue<>();
+            tpe = new ThreadPoolExecutor(8, 16, 30, TimeUnit.SECONDS, q);
         }
         cnt = 0;
         CouchDbClient dbClient = new CouchDbClient("couchdb.properties");
         DesignDocument designDoc = dbClient.design().getFromDesk("crawcial");
         dbClient.design().synchronizeWithDb(designDoc);
         dbClient.shutdown();
+    }
+
+    public synchronized void addToQueue(Runnable r) {
+        tpe.submit(r);
     }
 
     public void increaseCnt() {
@@ -71,13 +77,17 @@ public class DatabaseService {
         // On shutdown, flush the queue
         logger.debug("DatabaseService shutdown");
         flushQueue(true);
-        if (dad != null) {
-            logger.debug("AttachmentDispatcher shutdown initiated");
-            dad.shutdown();
-            logger.debug("AttachmentDispatcher shutdown received - State: {}", dad.getState());
-            dad.join();
-            logger.debug("AttachmentDispatcher shutdown completed - State: {}", dad.getState());
+        logger.info("Waiting for shutdown... queue size:{}, active threads:{}, pool threads:{}",
+                tpe.getQueue().size(), tpe.getActiveCount(), tpe.getPoolSize());
+        if (tpe != null) {
+            tpe.shutdown();
+            if (!tpe.awaitTermination(30, TimeUnit.SECONDS)) {
+                tpe.shutdownNow();
+                logger.error("Downloader thread terminated");
+            }
         }
+        tpe = null;
+        logger.debug("Shutdown ok...");
     }
 
     private void flushQueue(boolean block) throws InterruptedException {

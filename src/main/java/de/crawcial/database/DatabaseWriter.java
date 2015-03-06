@@ -27,19 +27,15 @@ class DatabaseWriter implements Runnable {
     public void run() {
         List<Response> responses = dbClient.bulk(objects, true);
         if (DatabaseService.getInstance().getDownloadMedia()) {
-            DatabaseAttachDispatcher dad = DatabaseAttachDispatcher.getInstance();
+            // DatabaseAttachDispatcher dad = DatabaseAttachDispatcher.getInstance();
             for (int i = 0; i < objects.size(); ++i) {
                 JsonObject object = objects.get(i);
                 if (object.has("media")) {
                     Response response = responses.get(i);
-                    try {
-                        logger.debug("Try to download: {}", response.getId());
-                        logger.debug("Downloader state: {}", dad.getState());
-                        dad.addDownloader(
-                                new DatabaseAttachment(response.getId(), response.getRev(), object));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    logger.debug("Try to download: {}", response.getId());
+                    // logger.debug("Downloader state: {}", dad.getState());
+                    DatabaseService.getInstance().addToQueue(
+                            new DatabaseAttachment(response.getId(), response.getRev(), object));
                 }
             }
         }

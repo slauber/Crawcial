@@ -29,10 +29,6 @@ class DatabaseAttachment implements Runnable {
         this.rev = rev;
     }
 
-    public String getId() {
-        return id;
-    }
-
     @Override
     public void run() {
         // Get media urls from json
@@ -80,6 +76,7 @@ class DatabaseAttachment implements Runnable {
                             id, rev).getRev();
                 } else {
                     if (!isMaxRetried()) {
+                        retry();
                         logger.error("IOException during attachment download - {} - {}", id);
                     } else {
                         // Flag media as unavailable
@@ -114,7 +111,6 @@ class DatabaseAttachment implements Runnable {
                 rev = dbClient.update(json).getRev();
             }
         }
-        DatabaseAttachDispatcher.getInstance().downloadDone(this);
         dbClient.shutdown();
     }
 
@@ -124,12 +120,8 @@ class DatabaseAttachment implements Runnable {
 
     private void retry() {
         increaseRetryCnt();
+        DatabaseService.getInstance().addToQueue(this);
         logger.error("retrying... - {}", id);
-        try {
-            DatabaseAttachDispatcher.getInstance().addDownloader(this);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
     }
 
     public boolean isMaxRetried() {
