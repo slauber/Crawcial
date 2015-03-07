@@ -30,7 +30,7 @@ public class CraTwitter {
     final static private Logger logger = LoggerFactory.getLogger(CraTwitter.class);
 
     public static void main(String[] args) throws TwitterException, IOException {
-        CouchDbProperties dbProperties = CouchDBPropertiesSource.loadFromFile("couchdb.properties");
+        CouchDbProperties dbProperties = CouchDBPropertiesSource.loadFromFile("couchdb_new.properties");
         try {
             switch (args.length) {
                 case 1:
@@ -40,6 +40,12 @@ public class CraTwitter {
                 case 2:
                     startAnalysis(null, Boolean.valueOf(args[1]), Long.valueOf(args[0]), dbProperties);
                     logger.info("Performed download with flags: {}, {}", Boolean.valueOf(args[1]), Long.valueOf(args[0]));
+                    break;
+                case 3:
+                    dbProperties.setDbName(args[2]);
+                    startAnalysis(null, Boolean.valueOf(args[1]), Long.valueOf(args[0]), dbProperties);
+                    logger.info("Performed download with flags: {}, {}; DbName: {}", Boolean.valueOf(args[1]),
+                            Long.valueOf(args[0]), dbProperties.getDbName());
                     break;
                 default:
                     startAnalysis(null, true, 30000, dbProperties);
@@ -79,7 +85,6 @@ public class CraTwitter {
         }
         return -1;
     }
-
 
     private static Authentication getAuth(Properties properties) throws TwitterException, IOException {
         // Check for token & secret in properties

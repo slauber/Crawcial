@@ -77,7 +77,6 @@ class CraTwitterStreamer {
                     .processor(new StringDelimitedProcessor(queue))
                     .build();
 
-
             // Start loadExecutors
             LoadExecutor[] loadExecutors = new LoadExecutor[threads];
             ArrayList<Thread> loadExecutorThreads = new ArrayList<>();
@@ -88,8 +87,11 @@ class CraTwitterStreamer {
             }
 
             Iterator<Thread> loadExecutorThreadsIt = loadExecutorThreads.iterator();
+            int cnt = 0;
             while (loadExecutorThreadsIt.hasNext()) {
-                loadExecutorThreadsIt.next().start();
+                Thread t = loadExecutorThreadsIt.next();
+                t.setName("load-executor-" + cnt++);
+                t.start();
             }
 
             // Connect the hosebird client
@@ -120,7 +122,6 @@ class CraTwitterStreamer {
 
             // Shutdown the database service (AttachementExecutors / WriteExecutor)
             ds.shutdown();
-
 
             // Return the num of messages - warnings (that are not persisted)
             return client.getStatsTracker().getNumMessages() - DatabaseService.getInstance().getWarningCnt();

@@ -64,7 +64,8 @@ public class DatabaseService {
 
         if (downloadMedia) {
             LinkedBlockingQueue<Runnable> attachmentExecutors = new LinkedBlockingQueue<>();
-            es = new ThreadPoolExecutor(4, 4, 30, TimeUnit.SECONDS, attachmentExecutors);
+            es = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+                    Runtime.getRuntime().availableProcessors() * 2, 30, TimeUnit.SECONDS, attachmentExecutors);
         }
         writeExecutor = new WriteExecutor(jsonObjectVector, bufferLimit);
         writeExecutorThread = new Thread(writeExecutor);
