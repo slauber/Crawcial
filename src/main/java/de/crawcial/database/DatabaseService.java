@@ -1,7 +1,9 @@
 package de.crawcial.database;
 
 import com.google.gson.JsonObject;
+import de.crawcial.database.util.CouchDbCloneClient;
 import org.lightcouch.CouchDbClient;
+import org.lightcouch.CouchDbProperties;
 import org.lightcouch.DesignDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +24,9 @@ public class DatabaseService {
     private static boolean downloadMedia = false;
     private ExecutorService es;
     private Vector<JsonObject> jsonObjectVector = new Vector<>(bufferLimit);
-    private LinkedBlockingQueue<Runnable> attachmentExecutors;
     private WriteExecutor writeExecutor;
     private Thread writeExecutorThread;
-
+    private CouchDbProperties dbProperties;
     private int warningCnt = 0;
 
     private DatabaseService() {
@@ -33,6 +34,10 @@ public class DatabaseService {
 
     public static DatabaseService getInstance() {
         return ourInstance;
+    }
+
+    public CouchDbProperties getDbProperties() {
+        return dbProperties;
     }
 
     public synchronized void increaseWarnings() {
@@ -48,16 +53,17 @@ public class DatabaseService {
         return downloadMedia;
     }
 
-    public synchronized void init(boolean downloadMedia) {
+    public synchronized void init(boolean downloadMedia, CouchDbProperties dbProperties) {
         DatabaseService.downloadMedia = downloadMedia;
         warningCnt = 0;
-        CouchDbClient dbClient = new CouchDbClient("couchdb.properties");
+        this.dbProperties = dbProperties;
+        CouchDbClient dbClient = new CouchDbCloneClient(dbProperties);
         DesignDocument designDoc = dbClient.design().getFromDesk("crawcial");
         dbClient.design().synchronizeWithDb(designDoc);
         dbClient.shutdown();
 
         if (downloadMedia) {
-            attachmentExecutors = new LinkedBlockingQueue<>();
+            LinkedBlockingQueue<Runnable> attachmentExecutors = new LinkedBlockingQueue<>();
             es = new ThreadPoolExecutor(4, 4, 30, TimeUnit.SECONDS, attachmentExecutors);
         }
         writeExecutor = new WriteExecutor(jsonObjectVector, bufferLimit);

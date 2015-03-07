@@ -12,10 +12,10 @@ import com.twitter.hbc.httpclient.BasicClient;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import de.crawcial.database.DatabaseService;
 import de.crawcial.database.LoadExecutor;
+import org.lightcouch.CouchDbProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 class CraTwitterStreamer {
 
     final static private Logger logger = LoggerFactory.getLogger(CraTwitterStreamer.class);
-    static CraTwitterStreamer ourInstance = new CraTwitterStreamer();
+    private static CraTwitterStreamer ourInstance = new CraTwitterStreamer();
     private final DatabaseService ds = DatabaseService.getInstance();
     private Authentication auth;
     private List<String> terms;
@@ -37,16 +37,15 @@ class CraTwitterStreamer {
         return ourInstance;
     }
 
-    public void setConfig(Authentication auth, List<String> terms, long time, boolean downloadMedia) {
+    public void setConfig(Authentication auth, List<String> terms, long time, boolean downloadMedia, CouchDbProperties properties) {
         // Receive OAuth params
         this.auth = auth;
 
         // Timing parameter
         this.time = time;
 
-
         // Reset DatabaseService & set download mode
-        ds.init(downloadMedia);
+        ds.init(downloadMedia, properties);
 
         // Terms for filtering
         this.terms = terms;
@@ -59,7 +58,7 @@ class CraTwitterStreamer {
         running = false;
     }
 
-    public long loadAndPersistStream(int threads) throws InterruptedException, IOException {
+    public long loadAndPersistStream(int threads) throws InterruptedException {
         if (configSet) {
             // Create an appropriately sized blocking queue
             BlockingQueue<String> queue = new LinkedBlockingQueue<>(1000);

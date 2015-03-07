@@ -2,10 +2,14 @@ package de.crawcial.twitter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import de.crawcial.database.util.CouchDBPropertiesSource;
+import de.crawcial.database.util.CouchDbCloneClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.lightcouch.CouchDbClient;
+import org.lightcouch.CouchDbProperties;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +17,9 @@ import java.util.List;
  * Created by Sebastian Lauber on 28.02.15.
  */
 public class DbPerfTest {
+    private CouchDbProperties properties;
 
-    public static List<JsonObject> generateSampleData(int amount) {
+    private static List<JsonObject> generateSampleData(int amount) {
         // Generate JSON data similar to real tweets
         ArrayList<JsonObject> testList = new ArrayList<>(amount);
         for (int j = 0; j < amount; j++) {
@@ -47,7 +52,9 @@ public class DbPerfTest {
     }
 
     @Before
-    public void warmUp() throws InterruptedException {
+    public void warmUp() throws InterruptedException, IOException {
+        properties = CouchDBPropertiesSource.loadFromFile("couchdb_new.properties");
+//        properties.setDbName("benchmark");
         for (int i = 0; i < 10; ++i) {
             bench((int) (Math.random() * 2000));
         }
@@ -71,7 +78,7 @@ public class DbPerfTest {
 
     long bench(int amount) {
         // Open database connection and take a timestamp
-        CouchDbClient dbClient = new CouchDbClient("benchmark.properties");
+        CouchDbClient dbClient = new CouchDbCloneClient(properties);
         long startTime = System.currentTimeMillis();
 
         // Send generated JSON samples in bulk to database
@@ -80,7 +87,7 @@ public class DbPerfTest {
         // Take a second timestamp and perform some cleanup
         long duration = System.currentTimeMillis() - startTime;
         dbClient.context().ensureFullCommit();
-        dbClient.context().deleteDB("cra-twitter-couch-benchmark", "delete database");
+        dbClient.context().deleteDB(properties.getDbName(), "delete database");
         dbClient.shutdown();
         return duration;
     }

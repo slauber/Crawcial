@@ -2,6 +2,8 @@ package de.crawcial.twitter;
 
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import de.crawcial.database.util.CouchDBPropertiesSource;
+import org.lightcouch.CouchDbProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import twitter4j.Twitter;
@@ -28,10 +30,28 @@ public class CraTwitter {
     final static private Logger logger = LoggerFactory.getLogger(CraTwitter.class);
 
     public static void main(String[] args) throws TwitterException, IOException {
-        startAnalysis(null, true, 30);
+        CouchDbProperties dbProperties = CouchDBPropertiesSource.loadFromFile("couchdb.properties");
+        try {
+            switch (args.length) {
+                case 1:
+                    startAnalysis(null, true, Long.valueOf(args[0]), dbProperties);
+                    logger.info("Performed download with flags: {}", Long.valueOf(args[0]));
+                    break;
+                case 2:
+                    startAnalysis(null, Boolean.valueOf(args[1]), Long.valueOf(args[0]), dbProperties);
+                    logger.info("Performed download with flags: {}, {}", Boolean.valueOf(args[1]), Long.valueOf(args[0]));
+                    break;
+                default:
+                    startAnalysis(null, true, 30000, dbProperties);
+                    break;
+            }
+        } catch (NumberFormatException e) {
+            logger.error("Invalid arguments, defaulting to 30s with media");
+            startAnalysis(null, true, 30000, dbProperties);
+        }
     }
 
-    public static long startAnalysis(String[] overrideTerms, boolean downloadMedia, long time) throws TwitterException, IOException {
+    public static long startAnalysis(String[] overrideTerms, boolean downloadMedia, long time, CouchDbProperties dbProperties) throws TwitterException, IOException {
         // Load properties from disk
         Properties properties = Utils.loadParams(propertiesFile, false);
 
@@ -49,7 +69,7 @@ public class CraTwitter {
         // Create new TwitterStreamer and do the auth if required
         CraTwitterStreamer craTwitterStreamer = CraTwitterStreamer.getInstance();
 
-        craTwitterStreamer.setConfig(getAuth(properties), terms, time, downloadMedia);
+        craTwitterStreamer.setConfig(getAuth(properties), terms, time, downloadMedia, dbProperties);
 
         try {
             // return craTwitterStreamer.loadAndPersistStream(8);
@@ -61,7 +81,7 @@ public class CraTwitter {
     }
 
 
-    static Authentication getAuth(Properties properties) throws TwitterException, IOException {
+    private static Authentication getAuth(Properties properties) throws TwitterException, IOException {
         // Check for token & secret in properties
         if (!properties.containsKey("token") && !properties.containsKey("tokensecret")) {
 

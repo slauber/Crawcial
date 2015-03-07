@@ -1,6 +1,7 @@
 package de.crawcial.database;
 
 import com.google.gson.JsonObject;
+import de.crawcial.database.util.CouchDbCloneClient;
 import org.lightcouch.CouchDbClient;
 
 import java.util.Vector;
@@ -8,9 +9,9 @@ import java.util.Vector;
 /**
  * Created by Sebastian Lauber on 06.03.15.
  */
-public class WriteExecutor implements Runnable {
+class WriteExecutor implements Runnable {
     private final Vector<JsonObject> vector;
-    private final CouchDbClient dbClient = new CouchDbClient("couchdb.properties");
+    private final CouchDbClient dbClient = new CouchDbCloneClient(DatabaseService.getInstance().getDbProperties());
     private boolean alive = true;
     private int bufferLimit;
 
