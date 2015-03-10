@@ -17,6 +17,7 @@
     <header>
         <a href="<%=Modules.HOME%>"><h1>Crawcial</h1></a>
     </header>
+
     <jsp:include page="/include/nav.jsp"/>
 
     <section id="content">
@@ -49,22 +50,12 @@
     <aside>
         <h2>Sidebarcontent</h2>
         <pre>OpenSource und so</pre>
-
     </aside>
 
     <footer>
-        <%
-
-
-            String twtoken = null;
+        <% String twtoken = null;
             String fbtoken = null;
             String crtoken = null;
-
-
-        %>
-        <%
-
-
             Cookie[] c = request.getCookies();
             if (c != null) {
                 for (Cookie cs : c) {

@@ -1,5 +1,6 @@
 package de.crawcial.web.setup;
 
+import de.crawcial.web.Modules;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 
@@ -31,8 +32,7 @@ public class Validator {
         try {
             Properties prop = new Properties();
             prop.load(is);
-            final String dbname = "crawcial-test";
-            final boolean createdb = true;
+            final boolean createdb = false;
             final String dbprotocol = prop.getProperty("dbprotocol");
             final String dbhost = prop.getProperty("dbhost");
             final int dbport = Integer.valueOf(prop.getProperty("dbport"));
@@ -41,14 +41,13 @@ public class Validator {
 
 
             // Check for mandatory variables
-            if (dbname == null || dbprotocol == null || dbhost == null || dbusername == null || dbpassword == null) {
+            if (dbprotocol == null || dbhost == null || dbusername == null || dbpassword == null) {
                 return NO_VALID_CONFIG;
             }
 
             // Try to establish a database connection to verify credentials
-            CouchDbClient c = new CouchDbClient(dbname, createdb, dbprotocol, dbhost, dbport, dbusername, dbpassword);
+            CouchDbClient c = new CouchDbClient(Modules.CONFIGDB, createdb, dbprotocol, dbhost, dbport, dbusername, dbpassword);
             is.close();
-            c.context().deleteDB(dbname, "delete database");
             c.shutdown();
             return OK;
         } catch (IOException e) {

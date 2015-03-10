@@ -10,4 +10,5 @@ public class Modules {
     public static final String CHECKLOGIN = baseUrl + "auth";
     public static final String LOGIN = baseUrl + "login";
     public static final String SETUP = baseUrl + "setup";
+    public static final String CONFIGDB = "crawcial_control";
 }

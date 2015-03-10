@@ -75,6 +75,4 @@ public class TwAuth extends HttpServlet {
             throw new ServletException(e);
         }
     }
-
-
 }

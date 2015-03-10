@@ -66,13 +66,13 @@ public class AuthServlet extends HttpServlet {
                 }
                 resp.sendRedirect(Modules.HOME);
             } else {
+                String redirect = Modules.LOGIN;
                 for (Cookie c : reqCookies) {
                     if (c.getName().equals(COOKIE_NAME)) {
-                        resp.sendRedirect(Modules.HOME);
-                    } else {
-                        resp.sendRedirect(Modules.LOGIN);
+                        redirect = Modules.HOME;
                     }
                 }
+                resp.sendRedirect(redirect);
             }
         }
     }

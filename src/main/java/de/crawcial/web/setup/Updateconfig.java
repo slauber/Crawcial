@@ -21,10 +21,25 @@ import java.util.Properties;
  * Created by Sebastian Lauber on 09.03.15.
  */
 public class Updateconfig extends HttpServlet {
+    private final String DocUserId = "org.couchdb.user:crawcial_control";
+    private final String DocUserName = "crawcial_control";
+    private final String DocUserGroup = DocUserName;
+    private final String DocConfigDb = DocUserName;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (Validator.isDbConfigured(req.getServletContext()) == 0) {
+            resp.sendRedirect(Modules.HOME);
+        } else {
+            throwError(resp, 1020);
+        }
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter("action") != null && req.getParameter("action").equals("update")) {
             CouchDbClient dbClient = null;
+            JsonObject userJs = null;
             try {
                 // Verify, whether valid connection information are in place
                 int currentCode = Validator.isDbConfigured(getServletContext());
@@ -43,28 +58,52 @@ public class Updateconfig extends HttpServlet {
                     dbClient = new CouchDbClient(name, true, protocol, host, port, user, password);
 
                     // Create a new user with random password
-                    JsonObject userJs = new JsonObject();
-                    userJs.addProperty("_id", "org.couchdb.user:crawcial_control");
+                    userJs = new JsonObject();
+                    userJs.addProperty("_id", DocUserId);
                     userJs.addProperty("type", "user");
-                    userJs.addProperty("name", "crawcial_control");
+                    userJs.addProperty("name", DocUserName);
                     String rndPassword = new BigInteger(130, new SecureRandom()).toString(32);
                     userJs.addProperty("password", rndPassword);
                     JsonArray roles = new JsonArray();
-                    roles.add(new JsonPrimitive("crawcial_control"));
+                    roles.add(new JsonPrimitive(DocUserGroup));
                     userJs.add("roles", roles);
 
-                    dbClient.save(userJs);
+                    try {
+                        dbClient.save(userJs);
+                    } catch (CouchDbException e) {
+                        if (e.getMessage().equals("Conflict")) {
+                            JsonObject o = dbClient.find(JsonObject.class, DocUserId);
+                            dbClient.remove(o);
+                            dbClient.save(userJs);
+                        } else {
+                            throwError(resp, 1010);
+                        }
+                    }
+
+                    JsonObject securityJs = new JsonObject();
+                    JsonObject memberJs = new JsonObject();
+                    securityJs.addProperty("_id", "_security");
+
+                    memberJs.add("roles", roles);
+                    memberJs.add("names", new JsonArray());
+
+                    securityJs.add("admins", memberJs);
+                    securityJs.add("members", memberJs);
+
+                    dbClient.shutdown();
+                    dbClient = new CouchDbClient(DocConfigDb, true, protocol, host, port, user, password);
+
+                    resp.getWriter().print(dbClient.save(securityJs));
 
                     Properties p = new Properties();
 
-                    p.put("dbname", "crawcial-core");
+                    p.put("dbname", "crawcial_core");
                     p.put("dbcreatedbifnotexist", String.valueOf(true));
                     p.put("dbprotocol", protocol);
                     p.put("dbhost", host);
                     p.put("dbport", String.valueOf(port));
-                    p.put("dbusername", user);
-                    p.put("dbpassword", password);
-
+                    p.put("dbusername", DocUserName);
+                    p.put("dbpassword", rndPassword);
 
                     String path = getServletContext().getRealPath("/WEB-INF");
                     FileOutputStream fos = new FileOutputStream(path + "/" + Validator.CONFIG_FILE);
@@ -75,10 +114,6 @@ public class Updateconfig extends HttpServlet {
                 }
             } catch (NumberFormatException e) {
                 throwError(resp, 1001);
-            } catch (CouchDbException e) {
-                if (e.getMessage().equals("Conflict")) {
-                }
-                throwError(resp, 1010);
             }
         }
     }

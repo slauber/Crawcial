@@ -1,11 +1,4 @@
 <%@ page import="de.crawcial.web.auth.AuthHelper" %>
-<%--
-  Created by IntelliJ IDEA.
-  User: slauber
-  Date: 08.03.15
-  Time: 17:42
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <% if (!AuthHelper.isAuthenticated(request)) {%>
 <div class="crawcial-login-container" style="text-align: center; vertical-align: middle;width: 340px;">
