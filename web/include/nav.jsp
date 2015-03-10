@@ -1,4 +1,5 @@
-<%@ page import="de.crawcial.web.Modules" %>
+<%@ page import="de.crawcial.web.auth.AuthHelper" %>
+<%@ page import="de.crawcial.web.util.Modules" %>
 <nav>
     <ul>
         <li>
@@ -10,5 +11,10 @@
         <li>
             <a href="/<%=Modules.CLEARCOOKIES%>">Reset cookies</a>
         </li>
+        <% if (AuthHelper.isAuthenticated(request)) {%>
+        <li>
+            <a href="/<%=Modules.DASHBOARD_CONFIG%>">Dashboard Config</a>
+        </li>
+        <% }%>
     </ul>
 </nav>

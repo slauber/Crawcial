@@ -3,7 +3,7 @@ package de.crawcial.web.setup;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import de.crawcial.web.Modules;
+import de.crawcial.web.util.Modules;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 
@@ -106,7 +106,7 @@ public class Updateconfig extends HttpServlet {
                     p.put("dbpassword", rndPassword);
 
                     String path = getServletContext().getRealPath("/WEB-INF");
-                    FileOutputStream fos = new FileOutputStream(path + "/" + Validator.CONFIG_FILE);
+                    FileOutputStream fos = new FileOutputStream(path + "/" + Modules.CONFIG_FILE);
                     p.store(fos, null);
 
                 } else {

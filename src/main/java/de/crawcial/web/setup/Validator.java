@@ -1,6 +1,6 @@
 package de.crawcial.web.setup;
 
-import de.crawcial.web.Modules;
+import de.crawcial.web.util.Modules;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 
@@ -18,14 +18,12 @@ public class Validator {
     public final static int OK = 0;
     public final static int NO_DATABASE_CONNECTION = 1;
     public final static int NO_CONFIG_FILE = 2;
-    public final static int NO_VALID_CONFIG = 3;
-    protected final static String CONFIG_FILE = "config.properties";
-    // Path for our config file
-    private final static String CONFIG_PATH = "/WEB-INF/" + CONFIG_FILE;
+    public final static int NO_VALID_CONFIG = 3;// Path for our config file
+
 
     // Returns information about the configuration state
     public static int isDbConfigured(ServletContext sc) {
-        final InputStream is = sc.getResourceAsStream(CONFIG_PATH);
+        final InputStream is = sc.getResourceAsStream(Modules.CONFIG_PATH);
         if (is == null) {
             return NO_CONFIG_FILE;
         }
@@ -72,19 +70,12 @@ public class Validator {
         // a flag in our config, whether this has been allowed
         if (status == NO_DATABASE_CONNECTION) {
             try {
-                String rwProperty = getProperty(sc, "rewriteProperty");
+                String rwProperty = Modules.getProperty(sc, "rewriteProperty");
                 return Boolean.valueOf(rwProperty);
             } catch (IOException e) {
                 return false;
             }
         }
         return false;
-    }
-
-    private static String getProperty(ServletContext sc, String propertyName) throws IOException {
-        final InputStream is = sc.getResourceAsStream(CONFIG_PATH);
-        Properties prop = new Properties();
-        prop.load(is);
-        return prop.getProperty(propertyName);
     }
 }

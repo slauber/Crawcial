@@ -1,6 +1,6 @@
 package de.crawcial.web.auth;
 
-import de.crawcial.web.Modules;
+import de.crawcial.web.util.Modules;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;

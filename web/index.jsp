@@ -1,4 +1,4 @@
-<%@ page import="de.crawcial.web.Modules" %>
+<%@ page import="de.crawcial.web.util.Modules" %>
 <%@ page import="de.crawcial.web.auth.AuthHelper" %>
 <%@ page import="de.crawcial.web.setup.Validator" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>

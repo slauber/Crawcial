@@ -1,56 +1,49 @@
 package de.crawcial.web.auth;
 
+import de.crawcial.web.util.Tokenmanager;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Base64;
-import java.util.Properties;
+import java.util.Map;
 
 public class FbAuth extends HttpServlet {
-
-    private final static String CONFIG_FILE = "social.properties";
-    private final static String CONFIG_PATH = "/WEB-INF/" + CONFIG_FILE;
     public static String FB_APP_ID;
     public static String FB_APP_SECRET;
     public static String REDIRECT_URI;
     static String accessToken = "";
 
-    private void loadProperties(String reqUri) {
-        final InputStream is = getServletContext().getResourceAsStream(CONFIG_PATH);
-        try {
-            StringBuilder callbackURL = new StringBuilder(reqUri);
-            int index = callbackURL.lastIndexOf("/");
-            callbackURL.replace(index, callbackURL.length(), "").append("/fbauth");
-
-            Properties prop = new Properties();
-            prop.load(is);
-            FB_APP_ID = prop.getProperty("fbappid");
-            FB_APP_SECRET = prop.getProperty("fbappsecret");
-            REDIRECT_URI = callbackURL.toString();
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void loadProperties(HttpServletRequest req) throws IOException {
+        StringBuilder callbackURL = new StringBuilder(req.getRequestURL().toString());
+        int index = callbackURL.lastIndexOf("/");
+        callbackURL.replace(index, callbackURL.length(), "").append("/fbauth");
+        Map<String, String> socialToken = Tokenmanager.getSocialToken(req);
+        FB_APP_ID = socialToken.get("fbappid");
+        FB_APP_SECRET = socialToken.get("fbappsecret");
+        REDIRECT_URI = callbackURL.toString();
     }
 
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        loadProperties(req.getRequestURL().toString());
+        loadProperties(req);
         resp.sendRedirect(getFbAuthUrl());
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        loadProperties(req.getRequestURL().toString());
+        loadProperties(req);
         String code = req.getParameter("code");
         if (code == null || code.equals("")) {
             throw new RuntimeException(

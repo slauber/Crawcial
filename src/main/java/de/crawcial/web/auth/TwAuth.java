@@ -1,5 +1,6 @@
 package de.crawcial.web.auth;
 
+import de.crawcial.web.util.Tokenmanager;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -12,35 +13,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Base64;
-import java.util.Properties;
+import java.util.Map;
 
 public class TwAuth extends HttpServlet {
-
-    private final static String CONFIG_FILE = "social.properties";
-    private final static String CONFIG_PATH = "/WEB-INF/" + CONFIG_FILE;
-
     private String CONSUMERKEY;
     private String CONSUMERSECRET;
 
-    private void loadProperties() {
-        final InputStream is = getServletContext().getResourceAsStream(CONFIG_PATH);
-        try {
-            Properties prop = new Properties();
-            prop.load(is);
-            CONSUMERKEY = prop.getProperty("twconsumerkey");
-            CONSUMERSECRET = prop.getProperty("twconsumersecret");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void loadProperties(HttpServletRequest req) throws IOException {
+        Map<String, String> socialToken = Tokenmanager.getSocialToken(req);
+        CONSUMERKEY = socialToken.get("twconsumerkey");
+        CONSUMERSECRET = socialToken.get("twconsumersecret");
     }
 
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Twitter twitter = new TwitterFactory().getInstance();
-        loadProperties();
+        loadProperties(req);
         twitter.setOAuthConsumer(CONSUMERKEY, CONSUMERSECRET);
         req.getSession().setAttribute("twitter", twitter);
         try {
