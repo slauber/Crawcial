@@ -1,0 +1,150 @@
+/* css released under Creative Commons License -  http://creativecommons.org/licenses/by/2.0/deed.en  */
+/* html5 + CSS 3 Template created by miss monorom  http://intensivstation.ch 2013 */
+
+/* reset */
+* {
+    margin: 0;
+    padding: 0;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+/* render html5 elements as block
+   rendert html5 elemente als block  */
+
+header, footer, section, aside, nav, article {
+    display: block;
+}
+
+body {
+    background-color: #ccc;
+    font-size: 0.95em;
+    font-family: Arial, SunSans-Regular;
+    color: #564b47;
+}
+
+pre, code {
+    font-size: 1.3em;
+}
+
+a {
+    display: inline-block;
+    margin: 0;
+    color: #444;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #222;
+}
+
+a:hover {
+    color: #ccc;
+}
+
+h1, h2 {
+    font-size: 1.8em;
+    font-weight: normal;
+    margin: 0 0 20px;
+}
+
+img.download {
+    vertical-align: middle;
+}
+
+img {
+    border: none;
+}
+
+/* ----------container zentriert das layout-------------- */
+
+#container {
+    max-width: 1200px;
+    min-width: 960px;
+    margin: 10px auto;
+    background-color: #eee;
+}
+
+/* ----------header for logo-------------- */
+header {
+    padding: 20px;
+    background: #ffdf1e;
+}
+
+header p {
+    text-transform: uppercase;
+    font-size: 11px;
+
+}
+
+header img {
+    padding: 0 0 10px;
+}
+
+/* -------------- navigavtion------------- */
+
+nav {
+    font-size: 16px;
+    background: #E2BB18 color : #000;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+}
+
+nav li {
+    display: inline;
+}
+
+nav a {
+    display: inline-block;
+    margin: 0;
+    color: #000;
+    border-right: 1px solid #97827F;
+    padding: 10px 50px;
+    text-decoration: none;
+}
+
+nav a:visited {
+    color: #222;
+}
+
+nav a:hover {
+    color: #ccc;
+}
+
+/* ----------------- content--------------------- */
+
+section#content {
+    float: left;
+    width: 75%;
+    padding: 20px;
+    background-color: #fff;
+    min-height: 600px;
+}
+
+p, pre {
+    padding: 0 0 20px;
+    line-height: 1.5em;
+}
+
+/* -------------- side infos ------------- */
+
+aside {
+    padding: 20px;
+    float: right;
+    width: 25%;
+}
+
+/* -----------footer--------------------------- */
+footer {
+    padding: 20px;
+    clear: both;
+    background-color: #564B47;
+    color: #fff;
+}
+
+/* -----------footer--------------------------- */
+

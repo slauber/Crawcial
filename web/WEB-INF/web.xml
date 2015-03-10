@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <servlet>
+        <servlet-name>Auth</servlet-name>
+        <servlet-class>de.crawcial.web.auth.AuthServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Auth</servlet-name>
+        <url-pattern>/auth</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>FbAuth</servlet-name>
+        <servlet-class>de.crawcial.web.auth.FbAuth</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>FbAuth</servlet-name>
+        <url-pattern>/fbauth</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>TwAuth</servlet-name>
+        <servlet-class>de.crawcial.web.auth.TwAuth</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>TwAuth</servlet-name>
+        <url-pattern>/twauth</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Updateconfig</servlet-name>
+        <servlet-class>de.crawcial.web.setup.Updateconfig</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Updateconfig</servlet-name>
+        <url-pattern>/updateconfig</url-pattern>
+    </servlet-mapping>
+
+</web-app>

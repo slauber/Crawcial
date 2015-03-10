@@ -2,7 +2,6 @@
   <artifact type="jar" build-on-make="true" name="crawcial_twitter:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/crawcial_twitter_jar</output-path>
     <root id="archive" name="crawcial_twitter.jar">
-      <element id="module-output" name="crawcial_twitter" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/httpcomponents/httpcore/4.4/httpcore-4.4.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.3.1/gson-2.3.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/twitter/joauth/6.0.2/joauth-6.0.2.jar" path-in-jar="/" />
@@ -19,6 +18,7 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/twitter/hbc-core/2.2.0/hbc-core-2.2.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/ch/qos/logback/logback-core/1.1.2/logback-core-1.1.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/twitter4j/twitter4j-stream/4.0.1/twitter4j-stream-4.0.1.jar" path-in-jar="/" />
+      <element id="module-output" name="crawcial" />
     </root>
   </artifact>
 </component>
