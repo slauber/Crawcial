@@ -40,7 +40,7 @@
                 <input type="submit" value="Sign out"></form>
             <% } else {%>
             <h1>Welcome to Crawcial</h1>
-            <a href="auth"><img alt="Plain login" width=215 style="margin-top: 38px;" src="./img/password.png"/></a>
+            <a href="auth"><img alt="Plain login" width=215 style="margin-top: 38px;" src="img/password.png"/></a>
             <% }
             }
             }%>
