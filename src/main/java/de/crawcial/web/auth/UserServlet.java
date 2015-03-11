@@ -165,7 +165,8 @@ public class UserServlet extends HttpServlet {
                     userJson = null;
                 }
 
-                if (userJson == null && action.equals("adduser") && req.getParameter("password") != null) {
+                if (userJson == null && action.equals("adduser") && req.getParameter("password") != null
+                        && username.length() > 3 && req.getParameter("password").length() > 3) {
                     userJson = new JsonObject();
                     userJson.addProperty("_id", USER_PREFIX + username);
                     userJson.addProperty("name", username);
@@ -189,6 +190,8 @@ public class UserServlet extends HttpServlet {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                } else {
+                    resp.sendRedirect(Modules.USERMGMT + "&e=1200");
                 }
                 dbClient.shutdown();
             }

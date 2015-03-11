@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="crawcial:war">
+    <output-path>$PROJECT_DIR$/out/artifacts/crawcial_war</output-path>
+    <root id="archive" name="crawcial_war.war">
+      <element id="artifact" artifact-name="crawcial:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -4,6 +4,10 @@ import com.google.gson.JsonObject;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import de.crawcial.web.auth.AuthHelper;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.NoDocumentException;
 
@@ -13,6 +17,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +44,7 @@ public class Tokenmanager extends HttpServlet {
         return values;
     }
 
-    public static OAuth1 getTwitterOAuth(HttpServletRequest req) throws IOException {
+    public static OAuth1 getTwitterOAuth(HttpServletRequest req) throws IOException, URISyntaxException {
         Map<String, String> socialToken = getSocialToken(req);
 
         String accessToken = null;
@@ -52,11 +58,27 @@ public class Tokenmanager extends HttpServlet {
             }
         }
 
-        if (accessToken == null || accessTokenSecret == null) {
+        if (accessToken == null) {
             return null;
         }
 
-        return new OAuth1(socialToken.get("twconsumerkey"), socialToken.get("twconsumersecret"), accessToken, accessTokenSecret);
+        OAuth1 token = new OAuth1(socialToken.get("twconsumerkey"), socialToken.get("twconsumersecret"), accessToken, accessTokenSecret);
+        URI u = new URI("https", null, "api.twitter.com", -1, "/1.1/application/rate_limit_status.json", "resources=help,users,search,statuses", null);
+
+        HttpGet g = new HttpGet(u);
+
+        try {
+            token.signRequest(g, "");
+        } catch (Exception e) {
+            return null;
+        }
+
+        HttpClient c = HttpClients.createMinimal();
+        HttpResponse r = c.execute(g);
+        if (r.getStatusLine().getStatusCode() < 400) {
+            return token;
+        }
+        return null;
     }
 
     @Override
@@ -82,7 +104,7 @@ public class Tokenmanager extends HttpServlet {
             } else {
                 dbClient.save(social);
             }
-            resp.sendRedirect(Modules.DASHBOARD_CONFIG);
+            resp.sendRedirect(Modules.CONFIGURATION);
         } else {
             resp.sendRedirect(Modules.HOME);
         }

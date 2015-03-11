@@ -118,7 +118,7 @@ public class Updateconfig extends HttpServlet {
                     String path = getServletContext().getRealPath("/WEB-INF");
                     FileOutputStream fos = new FileOutputStream(path + "/" + Modules.CONFIG_FILE);
                     p.store(fos, null);
-                    resp.sendRedirect(Modules.EXPERIMENTS);
+                    resp.sendRedirect(Modules.USERMGMT);
                 } else {
                     throwError(resp, 1002);
                 }

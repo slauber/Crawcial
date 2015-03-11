@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -29,26 +30,40 @@ public class CraTwitterStreamer implements Runnable {
     private final DatabaseService ds = DatabaseService.getInstance();
     private Authentication auth;
     private List<String> terms;
-    private long time;
     private boolean configSet = false;
+    private boolean active = false;
     private boolean running = false;
     private long result;
     private int threads = Runtime.getRuntime().availableProcessors();
+    private Date startDate;
 
     public static CraTwitterStreamer getInstance() {
         return ourInstance;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public List<String> getTerms() {
+        return terms;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public Date getStartDate() {
+        return startDate;
     }
 
     public long getResult() {
         return result;
     }
 
-    public void setConfig(Authentication auth, List<String> terms, long time, boolean downloadMedia, CouchDbProperties properties) {
+    public void setConfig(Authentication auth, List<String> terms, boolean downloadMedia, CouchDbProperties properties) {
         // Receive OAuth params
         this.auth = auth;
-
-        // Timing parameter
-        this.time = time;
 
         // Reset DatabaseService & set download mode
         ds.init(downloadMedia, properties);
@@ -61,12 +76,16 @@ public class CraTwitterStreamer implements Runnable {
     }
 
     public void shutdown() {
-        running = false;
+        active = false;
     }
 
     @Override
     public void run() {
+        running = true;
+        active = true;
+        startDate = new Date(System.currentTimeMillis());
         if (configSet) {
+            result = 0;
             // Create an appropriately sized blocking queue
             BlockingQueue<String> queue = new LinkedBlockingQueue<>(1000);
 
@@ -106,19 +125,14 @@ public class CraTwitterStreamer implements Runnable {
 
             try {
                 // Keeping this tool alive as set up in the properties file
-                if (running) {
-                    while (running) {
-                        Thread.sleep(50);
-                    }
-                } else {
-
-                    Thread.sleep(time);
-
-
+                while (active) {
+                    Thread.sleep(50);
+                    result = client.getStatsTracker().getNumMessages() - DatabaseService.getInstance().getWarningCnt();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             // Disconnect the hosebird client
             client.stop();
 
@@ -148,6 +162,8 @@ public class CraTwitterStreamer implements Runnable {
         } else {
             throw new IllegalStateException("Config not set");
         }
+        running = false;
+        configSet = false;
     }
 }
 

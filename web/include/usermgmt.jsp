@@ -1,21 +1,7 @@
-<h2>CraTwitter</h2>
-<form class="crawcial-login-form" action="twitter" method="post">
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="terms"
-               value=""
-               placeholder="Filter terms" autofocus="">
-    </div>
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="duration"
-               value=""
-               placeholder="Duration">
-    </div>
-    <div class="crawcial-form-row">
-        <button>Go</button>
-    </div>
-    <input type="hidden" name="action" value="persist">
-</form>
 <h2>Create new user</h2>
+<% if (request.getParameter("e") != null && request.getParameter("e").equals("1200")) { %>
+<div><h3>Could not perform update</h3></div>
+<%}%>
 <form class="crawcial-login-form" action="user" method="post">
     <div class="crawcial-form-row">
         <input class="crawcial-form-large" type="text" name="user"

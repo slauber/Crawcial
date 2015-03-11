@@ -2,6 +2,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <% int code = Validator.isDbConfigured(getServletConfig().getServletContext());%>
 <% if (Validator.isSetupEnabled(getServletConfig().getServletContext())) {%>
+<script>
+    EnableSubmit = function (val) {
+        var sbmt = document.getElementById("update");
+        sbmt.disabled = val.checked != true;
+    }
+</script>
 <h1>Crawcial Setup Wizard</h1>
 <%if (code == Validator.NO_CONFIG_FILE) {%>
 <p>No configuration file was found, in order to work properly, you are required to provide your CouchDB
@@ -46,6 +52,9 @@
                 <option>https</option>
             </select></label>
     </p>
+    <p>You are required to set a <a href="http://docs.couchdb.org/en/latest/intro/security.html#creating-new-admin-user"
+                                    target="_blank">CouchDB administrator password</a>, CoachDB's admin party mode will
+        not be accepted.</p>
 
     <p>
         <label for="user">CouchDB administrator username<br/>
@@ -57,9 +66,19 @@
             <input type="password" name="password" id="password" value="" size="20"/></label>
     </p>
 
+    <p>
+        <label for="feedback">Yes, please create new random
+            database credentials and generate tables "crawcial_control", "crawcial_facebook" and "crawcial_twitter" (if
+            they
+            do not exist).
+            Those new databases are only accessible with the generated credentials or an administrative account on this
+            CouchDB instance.
+            <input type="checkbox" name="feedback" id="feedback" value="Accept" onClick="EnableSubmit(this)"> I know
+            what I am doing.</label>
+    </p>
 
     <p>
-        <button type="submit" name="action" value="update">Test and proceed</button>
+        <button type="submit" disabled id="update" name="action" value="update">Test and proceed</button>
     </p>
     <input type="hidden" name="code" value="<%=code%>">
 </form>
@@ -67,10 +86,14 @@
 <h1>This instance is ready for use</h1>
 
 <p>Statuscode: <%=code%>
-    <%
+        <%
         if (code == 0) {
             response.sendRedirect("/");
         }
     %>
+        <% if(code == 1){ %>
+
+<p>Database unreachable</p>
+<%}%>
 </p>
 <% } %>

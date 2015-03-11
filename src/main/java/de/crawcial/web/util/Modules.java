@@ -22,8 +22,9 @@ public class Modules {
     private static final String baseUrl = "?p=";
     public static final String LOGIN = baseUrl + "login";
     public static final String SETUP = baseUrl + "setup";
-    public final static String DASHBOARD_CONFIG = baseUrl + "dashboard";
-    public final static String EXPERIMENTS = baseUrl + "experiments";
+    public final static String CONFIGURATION = baseUrl + "configuration";
+    public final static String USERMGMT = baseUrl + "usermgmt";
+    public final static String TWITTER = baseUrl + "twitter";
 
     public static CouchDbProperties getCouchDbProperties(ServletContext sc, String dbName) throws IOException {
         return new CouchDbProperties(dbName, false, getProperty(sc, "dbprotocol"), getProperty(sc, "dbhost"),

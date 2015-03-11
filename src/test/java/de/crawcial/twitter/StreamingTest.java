@@ -1,15 +1,10 @@
 package de.crawcial.twitter;
 
-import de.crawcial.database.util.CouchDBPropertiesSource;
 import de.crawcial.database.util.CouchDbCloneClient;
 import org.junit.FixMethodOrder;
-import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
-import twitter4j.TwitterException;
-
-import java.io.IOException;
 
 /**
  * Created by Sebastian Lauber on 20.02.15.
@@ -26,7 +21,7 @@ public class StreamingTest {
         dbClient.context().deleteDB(properties.getDbName(), "delete database");
         dbClient.shutdown();
     }
-
+/*
     void testStreaming(long millis, String[] terms, boolean downloadMedia, String name) throws TwitterException, IOException {
         // Setup database properties from template and adapt to fit
         CouchDbProperties properties = CouchDBPropertiesSource.loadFromFile("couchdb_new.properties");
@@ -86,4 +81,5 @@ public class StreamingTest {
     public void t6est15MinWithMedia() throws TwitterException, IOException {
         testStreaming(900000, terms, true, "test6");
     }
+    */
 }

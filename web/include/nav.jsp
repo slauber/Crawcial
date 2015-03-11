@@ -8,15 +8,15 @@
         <li>
             <a href="/<%=Modules.LOGIN%>">Login</a>
         </li>
-        <li>
-            <a href="/<%=Modules.CLEARCOOKIES%>">Reset cookies</a>
-        </li>
         <% if (AuthHelper.isAuthenticated(request)) {%>
         <li>
-            <a href="/<%=Modules.DASHBOARD_CONFIG%>">Dashboard Config</a>
+            <a href="/<%=Modules.TWITTER%>">Twitter Crawler</a>
         </li>
         <li>
-            <a href="/<%=Modules.EXPERIMENTS%>">Experiments</a>
+            <a href="/<%=Modules.CONFIGURATION%>">Configuration</a>
+        </li>
+        <li>
+            <a href="/<%=Modules.USERMGMT%>">User management</a>
         </li>
         <% }%>
     </ul>

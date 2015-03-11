@@ -47,8 +47,7 @@
         </article>
     </section>
     <aside>
-        <h2>Sidebarcontent</h2>
-        <pre>OpenSource und so</pre>
+        <jsp:include page="include/sidebar.jsp"/>
     </aside>
 
     <footer>
