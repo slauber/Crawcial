@@ -32,6 +32,7 @@ public class TwitterServlet extends HttpServlet {
                 t.start();
                 try {
                     t.join();
+                    resp.getWriter().println(crs.getResult());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

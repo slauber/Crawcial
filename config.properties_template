@@ -1,7 +1,0 @@
-#credentials properties file - required by Crawcial
-#Sat Feb 21 00:58:57 CET 2015
-consumerkey=xxxx
-consumersecret=xxxx
-terms=twitter
-time=2000
-reps=5

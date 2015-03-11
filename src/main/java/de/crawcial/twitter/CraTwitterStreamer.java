@@ -39,6 +39,10 @@ public class CraTwitterStreamer implements Runnable {
         return ourInstance;
     }
 
+    public long getResult() {
+        return result;
+    }
+
     public void setConfig(Authentication auth, List<String> terms, long time, boolean downloadMedia, CouchDbProperties properties) {
         // Receive OAuth params
         this.auth = auth;
