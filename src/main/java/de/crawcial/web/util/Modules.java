@@ -1,6 +1,6 @@
 package de.crawcial.web.util;
 
-import org.lightcouch.CouchDbClient;
+import org.lightcouch.CouchDbProperties;
 
 import javax.servlet.ServletContext;
 import java.io.IOException;
@@ -13,18 +13,20 @@ import java.util.Properties;
 public class Modules {
     public static final String CLEARCOOKIES = "auth?action=flush";
     public static final String HOME = "/";
-    private static final String baseUrl = "?p=";
-    public static final String LOGIN = baseUrl + "login";
-    public static final String SETUP = baseUrl + "setup";
     public static final String CONFIGDB = "crawcial_control";
     public final static String CONFIG_FILE = "config.properties";
     public final static String CONFIG_PATH = "/WEB-INF/" + Modules.CONFIG_FILE;
     public final static String SOCIAL_KEYS = "social_keys";
+    public final static String TWITTER_DB = "crawcial_twitter";
+    public final static String FACEBOOK_DB = "crawcial_facebook";
+    private static final String baseUrl = "?p=";
+    public static final String LOGIN = baseUrl + "login";
+    public static final String SETUP = baseUrl + "setup";
     public final static String DASHBOARD_CONFIG = baseUrl + "dashboard";
+    public final static String EXPERIMENTS = baseUrl + "experiments";
 
-    public static final CouchDbClient getDbClient(ServletContext sc, String database) throws IOException {
-
-        return new CouchDbClient(database, false, getProperty(sc, "dbprotocol"), getProperty(sc, "dbhost"),
+    public static CouchDbProperties getCouchDbProperties(ServletContext sc, String dbName) throws IOException {
+        return new CouchDbProperties(dbName, false, getProperty(sc, "dbprotocol"), getProperty(sc, "dbhost"),
                 Integer.valueOf(getProperty(sc, "dbport")), getProperty(sc, "dbusername"), getProperty(sc, "dbpassword"));
     }
 

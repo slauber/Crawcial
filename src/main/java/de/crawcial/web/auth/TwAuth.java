@@ -1,5 +1,6 @@
 package de.crawcial.web.auth;
 
+import de.crawcial.web.util.Modules;
 import de.crawcial.web.util.Tokenmanager;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -29,21 +30,25 @@ public class TwAuth extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Twitter twitter = new TwitterFactory().getInstance();
         loadProperties(req);
-        twitter.setOAuthConsumer(CONSUMERKEY, CONSUMERSECRET);
-        req.getSession().setAttribute("twitter", twitter);
-        try {
-            StringBuilder callbackURL = new StringBuilder(req.getRequestURL());
-            int index = callbackURL.lastIndexOf("/");
-            callbackURL.replace(index, callbackURL.length(), "").append("/twauth");
+        if (CONSUMERKEY == null || CONSUMERKEY.equals("") || CONSUMERSECRET == null || CONSUMERSECRET.equals("")) {
+            resp.sendRedirect(Modules.DASHBOARD_CONFIG);
+        } else {
+            Twitter twitter = new TwitterFactory().getInstance();
+            twitter.setOAuthConsumer(CONSUMERKEY, CONSUMERSECRET);
+            req.getSession().setAttribute("twitter", twitter);
+            try {
+                StringBuilder callbackURL = new StringBuilder(req.getRequestURL());
+                int index = callbackURL.lastIndexOf("/");
+                callbackURL.replace(index, callbackURL.length(), "").append("/twauth");
 
-            RequestToken requestToken = twitter.getOAuthRequestToken(callbackURL.toString());
-            req.getSession().setAttribute("requestToken", requestToken);
-            resp.sendRedirect(requestToken.getAuthenticationURL());
+                RequestToken requestToken = twitter.getOAuthRequestToken(callbackURL.toString());
+                req.getSession().setAttribute("requestToken", requestToken);
+                resp.sendRedirect(requestToken.getAuthenticationURL());
 
-        } catch (TwitterException e) {
-            throw new ServletException(e);
+            } catch (TwitterException e) {
+                throw new ServletException(e);
+            }
         }
     }
 

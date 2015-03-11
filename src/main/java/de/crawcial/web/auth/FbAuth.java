@@ -1,5 +1,6 @@
 package de.crawcial.web.auth;
 
+import de.crawcial.web.util.Modules;
 import de.crawcial.web.util.Tokenmanager;
 
 import javax.servlet.ServletException;
@@ -19,10 +20,10 @@ import java.util.Base64;
 import java.util.Map;
 
 public class FbAuth extends HttpServlet {
-    public static String FB_APP_ID;
-    public static String FB_APP_SECRET;
-    public static String REDIRECT_URI;
-    static String accessToken = "";
+    private static String FB_APP_ID;
+    private static String FB_APP_SECRET;
+    private static String REDIRECT_URI;
+    private static String accessToken = "";
 
     private void loadProperties(HttpServletRequest req) throws IOException {
         StringBuilder callbackURL = new StringBuilder(req.getRequestURL().toString());
@@ -38,7 +39,11 @@ public class FbAuth extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         loadProperties(req);
-        resp.sendRedirect(getFbAuthUrl());
+        if (FB_APP_ID == null || FB_APP_ID.equals("") || FB_APP_SECRET == null || FB_APP_SECRET.equals("")) {
+            resp.sendRedirect(Modules.DASHBOARD_CONFIG);
+        } else {
+            resp.sendRedirect(getFbAuthUrl());
+        }
     }
 
     @Override
@@ -58,7 +63,7 @@ public class FbAuth extends HttpServlet {
         }
     }
 
-    public String getFbAuthUrl() {
+    String getFbAuthUrl() {
         String fbLoginUrl = "";
         try {
             fbLoginUrl = "http://www.facebook.com/dialog/oauth?" + "client_id="
@@ -71,7 +76,7 @@ public class FbAuth extends HttpServlet {
         return fbLoginUrl;
     }
 
-    public String getFbGraphUrl(String code) {
+    String getFbGraphUrl(String code) {
         String fbGraphUrl = "";
         try {
             fbGraphUrl = "https://graph.facebook.com/oauth/access_token?"

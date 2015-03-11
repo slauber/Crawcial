@@ -77,12 +77,14 @@ public class CraTwitter {
 
         craTwitterStreamer.setConfig(getAuth(properties), terms, time, downloadMedia, dbProperties);
 
+        //TODO - DIRECT CALLS DISABLED
+/*
         try {
             // return craTwitterStreamer.loadAndPersistStream(8);
             return craTwitterStreamer.loadAndPersistStream(Runtime.getRuntime().availableProcessors());
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        } */
         return -1;
     }
 

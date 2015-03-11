@@ -27,17 +27,12 @@ public class AuthServlet extends HttpServlet {
                 case SIGNIN:
                     String user = req.getParameter(USER);
                     String password = req.getParameter(PASSWORD);
-                    if (user != null && password != null && user.equals(password)) {
-                        String hash = org.apache.commons.codec.digest.DigestUtils.sha256Hex(password + "salt" + String.valueOf(Math.random()));
-                        Cookie cookie = new Cookie(COOKIE_NAME, hash);
-                        cookie.setHttpOnly(true);
-                        cookie.setPath("/");
-                        resp.addCookie(cookie);
-                        resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                        resp.setHeader("Location", Modules.HOME);
+                    Cookie c = UserServlet.verifyCredentials(getServletContext(), user, password);
+                    if (c != null) {
+                        resp.addCookie(c);
+                        resp.sendRedirect(Modules.HOME);
                     } else {
-                        resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                        resp.setHeader("Location", Modules.LOGIN);
+                        resp.sendRedirect(Modules.LOGIN);
                     }
                     break;
                 case SIGNOUT:
@@ -46,8 +41,7 @@ public class AuthServlet extends HttpServlet {
                     cookie.setPath("/");
                     cookie.setHttpOnly(true);
                     resp.addCookie(cookie);
-                    resp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                    resp.setHeader("Location", Modules.HOME);
+                    resp.sendRedirect(Modules.HOME);
             }
         } else {
             resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);

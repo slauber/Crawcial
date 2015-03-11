@@ -6,6 +6,7 @@ import com.google.gson.JsonPrimitive;
 import de.crawcial.web.util.Modules;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
+import org.lightcouch.DesignDocument;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -90,10 +91,19 @@ public class Updateconfig extends HttpServlet {
                     securityJs.add("admins", memberJs);
                     securityJs.add("members", memberJs);
 
+                    // Create config db and facebook / twitter db
                     dbClient.shutdown();
                     dbClient = new CouchDbClient(DocConfigDb, true, protocol, host, port, user, password);
-
-                    resp.getWriter().print(dbClient.save(securityJs));
+                    dbClient.save(securityJs);
+                    DesignDocument designDoc = dbClient.design().getFromDesk("crawcial");
+                    dbClient.design().synchronizeWithDb(designDoc);
+                    dbClient.shutdown();
+                    dbClient = new CouchDbClient(Modules.FACEBOOK_DB, true, protocol, host, port, user, password);
+                    dbClient.save(securityJs);
+                    dbClient.shutdown();
+                    dbClient = new CouchDbClient(Modules.TWITTER_DB, true, protocol, host, port, user, password);
+                    dbClient.save(securityJs);
+                    dbClient.shutdown();
 
                     Properties p = new Properties();
 
@@ -108,12 +118,14 @@ public class Updateconfig extends HttpServlet {
                     String path = getServletContext().getRealPath("/WEB-INF");
                     FileOutputStream fos = new FileOutputStream(path + "/" + Modules.CONFIG_FILE);
                     p.store(fos, null);
-
+                    resp.sendRedirect(Modules.EXPERIMENTS);
                 } else {
                     throwError(resp, 1002);
                 }
             } catch (NumberFormatException e) {
                 throwError(resp, 1001);
+            } catch (CouchDbException e) {
+                throwError(resp, 1003);
             }
         }
     }

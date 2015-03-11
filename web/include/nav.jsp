@@ -15,6 +15,9 @@
         <li>
             <a href="/<%=Modules.DASHBOARD_CONFIG%>">Dashboard Config</a>
         </li>
+        <li>
+            <a href="/<%=Modules.EXPERIMENTS%>">Experiments</a>
+        </li>
         <% }%>
     </ul>
 </nav>

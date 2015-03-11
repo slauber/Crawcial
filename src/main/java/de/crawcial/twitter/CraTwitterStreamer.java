@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class CraTwitterStreamer {
+public class CraTwitterStreamer implements Runnable {
 
     final static private Logger logger = LoggerFactory.getLogger(CraTwitterStreamer.class);
     private static CraTwitterStreamer ourInstance = new CraTwitterStreamer();
@@ -32,6 +32,8 @@ class CraTwitterStreamer {
     private long time;
     private boolean configSet = false;
     private boolean running = false;
+    private long result;
+    private int threads = Runtime.getRuntime().availableProcessors();
 
     public static CraTwitterStreamer getInstance() {
         return ourInstance;
@@ -58,7 +60,8 @@ class CraTwitterStreamer {
         running = false;
     }
 
-    public long loadAndPersistStream(int threads) throws InterruptedException {
+    @Override
+    public void run() {
         if (configSet) {
             // Create an appropriately sized blocking queue
             BlockingQueue<String> queue = new LinkedBlockingQueue<>(1000);
@@ -97,16 +100,21 @@ class CraTwitterStreamer {
             // Connect the hosebird client
             client.connect();
 
+            try {
+                // Keeping this tool alive as set up in the properties file
+                if (running) {
+                    while (running) {
+                        Thread.sleep(50);
+                    }
+                } else {
 
-            // Keeping this tool alive as set up in the properties file
-            if (running) {
-                while (running) {
-                    Thread.sleep(50);
+                    Thread.sleep(time);
+
+
                 }
-            } else {
-                Thread.sleep(time);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
             // Disconnect the hosebird client
             client.stop();
 
@@ -117,18 +125,25 @@ class CraTwitterStreamer {
 
             loadExecutorThreadsIt = loadExecutorThreads.iterator();
             while (loadExecutorThreadsIt.hasNext()) {
-                loadExecutorThreadsIt.next().join();
+                try {
+                    loadExecutorThreadsIt.next().join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             // Shutdown the database service (AttachementExecutors / WriteExecutor)
-            ds.shutdown();
+            try {
+                ds.shutdown();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             // Return the num of messages - warnings (that are not persisted)
-            return client.getStatsTracker().getNumMessages() - DatabaseService.getInstance().getWarningCnt();
+            result = client.getStatsTracker().getNumMessages() - DatabaseService.getInstance().getWarningCnt();
         } else {
             throw new IllegalStateException("Config not set");
         }
     }
-
 }
 
