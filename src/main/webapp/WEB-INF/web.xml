@@ -73,6 +73,8 @@
         <url-pattern>/tokenmgr</url-pattern>
     </servlet-mapping>
 
+    <!--    Workaround for Glassfish -->
+
     <servlet>
         <servlet-name>jsp</servlet-name>
         <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
@@ -95,7 +97,6 @@
         <load-on-startup>3</load-on-startup>
     </servlet>
 
-    <!-- The mappings for the JSP servlet -->
     <servlet-mapping>
         <servlet-name>jsp</servlet-name>
         <url-pattern>*.jsp</url-pattern>
