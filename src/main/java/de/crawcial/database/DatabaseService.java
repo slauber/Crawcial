@@ -5,8 +5,6 @@ import de.crawcial.database.util.CouchDbCloneClient;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 import org.lightcouch.DesignDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
@@ -19,7 +17,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class DatabaseService {
     private static final DatabaseService ourInstance = new DatabaseService();
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
     private static int bufferLimit = 200;
     private static boolean downloadMedia = false;
     private ExecutorService es;
@@ -45,7 +42,6 @@ public class DatabaseService {
     }
 
     public synchronized int getWarningCnt() {
-        logger.warn("{} warnings reported", warningCnt);
         return warningCnt;
     }
 

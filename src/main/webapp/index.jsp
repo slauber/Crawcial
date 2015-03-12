@@ -17,7 +17,7 @@
         <a href="<%=Modules.HOME%>"><h1>Crawcial</h1></a>
     </header>
 
-    <jsp:include page="/include/nav.jsp"/>
+    <jsp:include page="//include/nav.jsp"/>
 
     <section id="content">
         <article>

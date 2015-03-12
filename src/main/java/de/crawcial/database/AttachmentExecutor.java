@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Encoder;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Vector;
 
 /**
@@ -63,7 +63,7 @@ class AttachmentExecutor implements Runnable {
                 // Check, whether download was successful
                 if (contentType != null) {
                     // Store as attachment
-                    String attachmentString = new BASE64Encoder().encode(responseBytes);
+                    String attachmentString = Base64.getEncoder().encodeToString(responseBytes);
                     attachmentObj.addProperty("content_type", contentType);
                     attachmentObj.addProperty("data", attachmentString);
                     attachmentObjRoot.add(urlString, attachmentObj);
