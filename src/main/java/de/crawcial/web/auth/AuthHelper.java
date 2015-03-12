@@ -8,6 +8,7 @@ import java.io.IOException;
  * Created by Sebastian Lauber on 08.03.15.
  */
 public class AuthHelper {
+    @SuppressWarnings("SimplifiableConditionalExpression")
     public static boolean isAuthenticated(HttpServletRequest request) throws IOException {
         return UserServlet.verifySession(request.getServletContext(), getSessionCookie(request)) ?
                 true : UserServlet.isAdminParty(request.getServletContext());

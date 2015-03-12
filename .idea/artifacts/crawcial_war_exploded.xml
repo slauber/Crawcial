@@ -24,7 +24,6 @@
           <element id="library" level="project" name="Maven: javax:javaee-api:7.0" />
           <element id="library" level="project" name="Maven: com.sun.mail:javax.mail:1.5.0" />
           <element id="library" level="project" name="Maven: javax.activation:activation:1.1" />
-          <element id="library" level="project" name="Maven: oauth.signpost:signpost-core:1.2.1.2" />
           <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.10" />
           <element id="library" level="project" name="Maven: com.google.guava:guava:18.0" />
         </element>

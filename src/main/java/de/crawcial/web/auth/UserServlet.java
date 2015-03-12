@@ -39,15 +39,18 @@ public class UserServlet extends HttpServlet {
             return false;
         }
         String user = s.substring(0, s.indexOf("|"));
-        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Modules.CONFIGDB));
-        try {
-            JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + user);
-            dbClient.shutdown();
-            return (o.has(AuthServlet.COOKIE_NAME) && o.get(AuthServlet.COOKIE_NAME).getAsString().equals(s));
-        } catch (Exception e) {
-            dbClient.shutdown();
-            return false;
+        if (Modules.getCouchDbProperties(sc, Modules.CONFIGDB) != null) {
+            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Modules.CONFIGDB));
+            try {
+                JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + user);
+                dbClient.shutdown();
+                return (o.has(AuthServlet.COOKIE_NAME) && o.get(AuthServlet.COOKIE_NAME).getAsString().equals(s));
+            } catch (Exception e) {
+                dbClient.shutdown();
+            }
         }
+        return false;
+
     }
 
     protected static Cookie verifyCredentials(ServletContext sc, String username, String password) throws IOException {

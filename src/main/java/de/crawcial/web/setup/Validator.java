@@ -72,7 +72,7 @@ public class Validator {
             try {
                 String rwProperty = Modules.getProperty(sc, "rewriteProperty");
                 return Boolean.valueOf(rwProperty);
-            } catch (IOException e) {
+            } catch (NullPointerException e) {
                 return false;
             }
         }

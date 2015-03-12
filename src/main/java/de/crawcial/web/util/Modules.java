@@ -26,15 +26,24 @@ public class Modules {
     public final static String USERMGMT = baseUrl + "usermgmt";
     public final static String TWITTER = baseUrl + "twitter";
 
-    public static CouchDbProperties getCouchDbProperties(ServletContext sc, String dbName) throws IOException {
-        return new CouchDbProperties(dbName, false, getProperty(sc, "dbprotocol"), getProperty(sc, "dbhost"),
-                Integer.valueOf(getProperty(sc, "dbport")), getProperty(sc, "dbusername"), getProperty(sc, "dbpassword"));
+    public static CouchDbProperties getCouchDbProperties(ServletContext sc, String dbName) {
+        try {
+            return new CouchDbProperties(dbName, false, getProperty(sc, "dbprotocol"), getProperty(sc, "dbhost"),
+                    Integer.valueOf(getProperty(sc, "dbport")), getProperty(sc, "dbusername"), getProperty(sc, "dbpassword"));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
-    public static String getProperty(ServletContext sc, String propertyName) throws IOException {
+    public static String getProperty(ServletContext sc, String propertyName) {
         final InputStream is = sc.getResourceAsStream(CONFIG_PATH);
-        Properties prop = new Properties();
-        prop.load(is);
+        Properties prop;
+        try {
+            prop = new Properties();
+            prop.load(is);
+        } catch (IOException | NullPointerException e1) {
+            return null;
+        }
         return prop.getProperty(propertyName);
     }
 }
