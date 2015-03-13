@@ -73,6 +73,9 @@
                         <phase>deploy</phase>
                     </execution>
                 </executions>
+                <configuration>
+                    <jettyXml>jetty.xml,jetty-ssl.xml,jetty-https.xml</jettyXml>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
