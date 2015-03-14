@@ -7,19 +7,19 @@
 <!-- ============================================================= -->
 <Configure id="sslContextFactory" class="org.eclipse.jetty.util.ssl.SslContextFactory">
     <Set name="KeyStorePath"><Property name="jetty.base" default="."/>/
-        <Property name="crawcial.keystore" default="crawcial.keystore"/>
+        <Property name="jetty.keystore" default="store.keystore"/>
     </Set>
     <Set name="KeyStorePassword">
-        <Property name="jetty.keystore.password" default="crawcial"/>
+        <Property name="jetty.keystore.password" default="jetty9"/>
     </Set>
     <Set name="KeyManagerPassword">
-        <Property name="jetty.keymanager.password" default="crawcial"/>
+        <Property name="jetty.keymanager.password" default="jetty9"/>
     </Set>
     <Set name="TrustStorePath"><Property name="jetty.base" default="."/>/
-        <Property name="crawcial.truststore" default="crawcial.keystore"/>
+        <Property name="jetty.truststore" default="store.keystore"/>
     </Set>
     <Set name="TrustStorePassword">
-        <Property name="jetty.truststore.password" default="crawcial"/>
+        <Property name="jetty.truststore.password" default="jetty9"/>
     </Set>
     <Set name="EndpointIdentificationAlgorithm"></Set>
     <Set name="ExcludeCipherSuites">

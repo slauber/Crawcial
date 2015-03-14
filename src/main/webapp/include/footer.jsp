@@ -17,6 +17,11 @@
         }
     }
 %>
-<pre><%=(crtoken != null ? "Crawcial token: " + crtoken : "No Crawcial token")%></pre>
-<pre><%=(twtoken != null ? "Twitter token: " + twtoken : "No Twitter token")%></pre>
-<pre><%=(fbtoken != null ? "Facebook token: " + fbtoken : "No Facebook token")%></pre>
+<p><%=(crtoken != null ? "Crawcial token: " + crtoken : "No Crawcial token")%>
+</p>
+
+<p><%=(twtoken != null ? "Twitter token: " + twtoken : "No Twitter token")%>
+</p>
+
+<p><%=(fbtoken != null ? "Facebook token: " + fbtoken : "No Facebook token")%>
+</p>

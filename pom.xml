@@ -56,6 +56,20 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>keytool-maven-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <keystore>${project.basedir}/store.keystore</keystore>
+                    <dname>cn=localhost</dname>
+                    <keypass>jetty9</keypass>
+                    <storepass>jetty9</storepass>
+                    <alias>jetty9</alias>
+                    <keyalg>RSA</keyalg>
+                    <validity>365</validity>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.7</version>
                 <executions>

@@ -1,6 +1,6 @@
 /* css released under Creative Commons License -  http://creativecommons.org/licenses/by/2.0/deed.en  */
 /* html5 + CSS 3 Template created by miss monorom  http://intensivstation.ch 2013 */
-
+@import url(//fonts.googleapis.com/css?family=Lato:400,300,700);
 /* reset */
 * {
     margin: 0;
@@ -18,10 +18,11 @@ header, footer, section, aside, nav, article {
 }
 
 body {
-    background-color: #ccc;
+    font-family: 'Lato', 'sans-serif';
+    font-weight: lighter;
+    background-color: #202020;
     font-size: 0.95em;
-    font-family: Arial, SunSans-Regular;
-    color: #564b47;
+    color: #606060;
 }
 
 pre, code {
@@ -113,6 +114,7 @@ nav a:visited {
 
 nav a:hover {
     color: #ccc;
+    text-decoration: dotted;
 }
 
 /* ----------------- content--------------------- */
@@ -120,7 +122,7 @@ nav a:hover {
 section#content {
     float: left;
     width: 75%;
-    padding: 20px;
+    padding: 20px 35px;
     background-color: #fff;
     min-height: 600px;
 }
@@ -133,7 +135,7 @@ p, pre {
 /* -------------- side infos ------------- */
 
 aside {
-    padding: 20px;
+    padding: 20px 35px;
     float: right;
     width: 25%;
 }
@@ -142,8 +144,9 @@ aside {
 footer {
     padding: 20px;
     clear: both;
-    background-color: #564B47;
-    color: #fff;
+    background-color: #303030;
+    font-size: .75em;
+    color: #444;
 }
 
 /* -----------footer--------------------------- */
