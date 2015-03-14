@@ -6,21 +6,11 @@
 <!-- and either jetty-https.xml or jetty-spdy.xml (but not both)   -->
 <!-- ============================================================= -->
 <Configure id="sslContextFactory" class="org.eclipse.jetty.util.ssl.SslContextFactory">
-    <Set name="KeyStorePath"><Property name="jetty.base" default="."/>/
-        <Property name="jetty.keystore" default="store.keystore"/>
-    </Set>
-    <Set name="KeyStorePassword">
-        <Property name="jetty.keystore.password" default="jetty9"/>
-    </Set>
-    <Set name="KeyManagerPassword">
-        <Property name="jetty.keymanager.password" default="jetty9"/>
-    </Set>
-    <Set name="TrustStorePath"><Property name="jetty.base" default="."/>/
-        <Property name="jetty.truststore" default="store.keystore"/>
-    </Set>
-    <Set name="TrustStorePassword">
-        <Property name="jetty.truststore.password" default="jetty9"/>
-    </Set>
+    <Set name="KeyStorePath"><Property name="jetty.base" default="." />/<Property name="jetty.keystore" default="store.keystore"/></Set>
+    <Set name="KeyStorePassword"><Property name="jetty.keystore.password" default="jetty9"/></Set>
+    <Set name="KeyManagerPassword"><Property name="jetty.keymanager.password" default="jetty9"/></Set>
+    <Set name="TrustStorePath"><Property name="jetty.base" default="." />/<Property name="jetty.truststore" default="store.keystore"/></Set>
+    <Set name="TrustStorePassword"><Property name="jetty.truststore.password" default="jetty9"/></Set>
     <Set name="EndpointIdentificationAlgorithm"></Set>
     <Set name="ExcludeCipherSuites">
         <Array type="String">
@@ -40,13 +30,9 @@
     <!-- session information                                         -->
     <!-- =========================================================== -->
     <New id="sslHttpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
-        <Arg>
-            <Ref refid="httpConfig"/>
-        </Arg>
+        <Arg><Ref refid="httpConfig"/></Arg>
         <Call name="addCustomizer">
-            <Arg>
-                <New class="org.eclipse.jetty.server.SecureRequestCustomizer"/>
-            </Arg>
+            <Arg><New class="org.eclipse.jetty.server.SecureRequestCustomizer"/></Arg>
         </Call>
     </New>
 </Configure>

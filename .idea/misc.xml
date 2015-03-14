@@ -12,6 +12,7 @@
     </option>
   </component>
   <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/jetty-ssl.xml" />
     <file url="file://$PROJECT_DIR$/src/main/resources/design-docs/crawcial/views/allDownloads/map.js" />
     <file url="file://$PROJECT_DIR$/src/main/resources/design-docs/crawcial/views/allUsers/map.js" />
     <file url="file://$PROJECT_DIR$/src/main/resources/design-docs/crawcial/views/noDownloads/map.js" />
