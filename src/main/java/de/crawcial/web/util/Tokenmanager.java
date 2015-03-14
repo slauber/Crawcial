@@ -10,6 +10,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.NoDocumentException;
+import twitter4j.auth.AccessToken;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -79,6 +80,20 @@ public class Tokenmanager extends HttpServlet {
             return token;
         }
         return null;
+    }
+
+    public static AccessToken getTwitter4jAccessToken(HttpServletRequest req) {
+        String accessToken = null;
+        String accessTokenSecret = null;
+
+        for (Cookie c : req.getCookies()) {
+            if (c.getName().equals("twtoken")) {
+                String cookieString = new String(Base64.decodeBase64(c.getValue()));
+                accessToken = cookieString.substring(0, cookieString.indexOf(" "));
+                accessTokenSecret = cookieString.substring(cookieString.indexOf(" -") + 3);
+            }
+        }
+        return new AccessToken(accessToken, accessTokenSecret);
     }
 
     @Override

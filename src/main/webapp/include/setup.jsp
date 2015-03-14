@@ -73,8 +73,8 @@
             do not exist).
             Those new databases are only accessible with the generated credentials or an administrative account on this
             CouchDB instance.
-            <input type="checkbox" name="feedback" id="feedback" value="Accept" onClick="EnableSubmit(this)"> I know
-            what I am doing.</label>
+            <input type="checkbox" name="feedback" id="feedback" value="Accept" onClick="EnableSubmit(this)"/> I know
+            what I am doing.></label>
     </p>
 
     <p>

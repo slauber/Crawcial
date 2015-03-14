@@ -3,6 +3,7 @@ package de.crawcial.web.auth;
 import com.google.gson.JsonObject;
 import de.crawcial.web.util.Modules;
 import org.lightcouch.CouchDbClient;
+import org.lightcouch.CouchDbException;
 import org.lightcouch.NoDocumentException;
 
 import javax.crypto.SecretKeyFactory;
@@ -40,7 +41,12 @@ public class UserServlet extends HttpServlet {
         }
         String user = s.substring(0, s.indexOf("|"));
         if (Modules.getCouchDbProperties(sc, Modules.CONFIGDB) != null) {
-            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Modules.CONFIGDB));
+            CouchDbClient dbClient;
+            try {
+                dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Modules.CONFIGDB));
+            } catch (CouchDbException e) {
+                return false;
+            }
             try {
                 JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + user);
                 dbClient.shutdown();
