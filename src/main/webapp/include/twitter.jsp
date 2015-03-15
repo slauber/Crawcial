@@ -1,15 +1,15 @@
+<%@ page import="de.crawcial.Constants" %>
 <%@ page import="de.crawcial.web.auth.AuthHelper" %>
-<%@ page import="de.crawcial.web.social.TwitterServlet" %>
-<%@ page import="de.crawcial.web.util.Modules" %>
+<%@ page import="de.crawcial.web.social.TwServlet" %>
 <%@ page import="de.crawcial.web.util.Tokenmanager" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <h2>CraTwitter</h2>
-<%if (TwitterServlet.isRunning() && AuthHelper.isAuthenticated(request)) {%>
-<p><%=TwitterServlet.getStatus()%>
+<%if (TwServlet.isRunning() && AuthHelper.isAuthenticated(request)) {%>
+<p><%=TwServlet.getStatus()%>
 </p>
-<% if (TwitterServlet.isShuttingDown()) {%>
+<% if (TwServlet.isShuttingDown()) {%>
 <strong>CraTwitter is shutting down</strong><%} else {%>
 <strong>CraTwitter is active</strong>
 
@@ -21,9 +21,10 @@
         }
     }%>
 <% if (Tokenmanager.getTwitterOAuth(request) != null && AuthHelper.isAuthenticated(request)) {
-    if (!TwitterServlet.isRunning()) {%>
+    if (!TwServlet.isRunning()) {%>
 <a href="twitter?action=trends">Preload terms with current world wide trending topic (it is not recommended to crawl
     them all)</a>
+
 <form class="crawcial-login-form" action="twitter" method="post">
     <div class="crawcial-form-row">
         <input class="crawcial-form-large" type="text" name="terms"
@@ -42,6 +43,6 @@
 </form>
 <% }
 } else {
-%><strong>CraTwitter is not ready. Please check your <a href="<%=Modules.CONFIGURATION%>">tokens</a> and <a
-        href="<%=Modules.LOGIN%>">twitter login</a>.</strong>
+%><strong>CraTwitter is not ready. Please check your <a href="<%=Constants.CONFIGURATION%>">tokens</a> and <a
+        href="<%=Constants.LOGIN%>">twitter login</a>.</strong>
 <%}%>

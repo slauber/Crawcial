@@ -2,6 +2,7 @@ package de.crawcial.web.util;
 
 import com.google.gson.JsonObject;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import de.crawcial.Constants;
 import de.crawcial.web.auth.AuthHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -30,10 +31,10 @@ public class Tokenmanager extends HttpServlet {
     private final static String[] keys = {"fbappid", "fbappsecret", "twconsumerkey", "twconsumersecret"};
 
     public static Map<String, String> getSocialToken(HttpServletRequest req) throws IOException {
-        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(req.getServletContext(), Modules.CONFIGDB));
+        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB));
         Map<String, String> values = new HashMap<>();
         try {
-            JsonObject o = dbClient.find(JsonObject.class, Modules.SOCIAL_KEYS);
+            JsonObject o = dbClient.find(JsonObject.class, Constants.SOCIAL_KEYS);
             for (String k : keys) {
                 if (o.has(k)) {
                     values.put(k, o.get(k).getAsString());
@@ -82,7 +83,7 @@ public class Tokenmanager extends HttpServlet {
         return null;
     }
 
-    public static AccessToken getTwitter4jAccessToken(HttpServletRequest req) {
+    public static twitter4j.auth.AccessToken getTwitter4jAccessToken(HttpServletRequest req) {
         String accessToken = null;
         String accessTokenSecret = null;
 
@@ -96,19 +97,36 @@ public class Tokenmanager extends HttpServlet {
         return new AccessToken(accessToken, accessTokenSecret);
     }
 
+    public static facebook4j.auth.AccessToken getFacebookAccessToken(HttpServletRequest req) {
+        return new facebook4j.auth.AccessToken(getTokenFromCookie(req, "fbtoken"));
+    }
+
+    private static String getTokenFromCookie(HttpServletRequest req, String name) {
+        Cookie[] c = req.getCookies();
+        if (c != null) {
+            for (Cookie cs : c) {
+                if (cs.getName().equals(name)) {
+                    return new String(Base64.decodeBase64(cs.getValue()));
+                }
+            }
+        }
+        return null;
+    }
+
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (AuthHelper.isAuthenticated(req) && req.getParameter("action") != null || req.getParameter("action").equals("update")) {
 
-            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(getServletContext(), Modules.CONFIGDB));
+            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(getServletContext(), Constants.CONFIGDB));
             JsonObject social;
             try {
-                social = dbClient.find(JsonObject.class, Modules.SOCIAL_KEYS);
+                social = dbClient.find(JsonObject.class, Constants.SOCIAL_KEYS);
             } catch (NoDocumentException e) {
                 social = new JsonObject();
             }
 
-            social.addProperty("_id", Modules.SOCIAL_KEYS);
+            social.addProperty("_id", Constants.SOCIAL_KEYS);
             for (String k : keys) {
                 if (req.getParameter(k) != null) {
                     social.addProperty(k, req.getParameter(k));
@@ -119,9 +137,9 @@ public class Tokenmanager extends HttpServlet {
             } else {
                 dbClient.save(social);
             }
-            resp.sendRedirect(Modules.CONFIGURATION);
+            resp.sendRedirect(Constants.CONFIGURATION);
         } else {
-            resp.sendRedirect(Modules.HOME);
+            resp.sendRedirect(Constants.HOME);
         }
     }
 }

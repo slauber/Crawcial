@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import de.crawcial.Constants;
 import de.crawcial.twitter.CraTwitterStreamer;
 import de.crawcial.web.auth.AuthHelper;
 import de.crawcial.web.util.Modules;
@@ -30,7 +31,7 @@ import java.util.*;
 /**
  * Created by Sebastian Lauber on 11.03.2015.
  */
-public class TwitterServlet extends HttpServlet {
+public class TwServlet extends HttpServlet {
 
     public static boolean isRunning() {
         return CraTwitterStreamer.getInstance().isRunning();
@@ -88,9 +89,9 @@ public class TwitterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter("action") != null && req.getParameter("action").equals("trends")) {
-            resp.sendRedirect(Modules.TWITTER + "&trends=" + getTrendingWorldwideBase64(req));
+            resp.sendRedirect(Constants.TWITTER + "&trends=" + getTrendingWorldwideBase64(req));
         } else {
-            resp.sendRedirect(Modules.TWITTER);
+            resp.sendRedirect(Constants.TWITTER);
         }
     }
 
@@ -101,7 +102,7 @@ public class TwitterServlet extends HttpServlet {
             switch (req.getParameter("action")) {
                 case "persist":
                     if (!CraTwitterStreamer.getInstance().isRunning() && !CraTwitterStreamer.getInstance().isActive()) {
-                        CouchDbProperties dbProperties = Modules.getCouchDbProperties(req.getServletContext(), Modules.TWITTER_DB);
+                        CouchDbProperties dbProperties = Modules.getCouchDbProperties(req.getServletContext(), Constants.TWITTER_DB);
                         List<String> terms = req.getParameter("terms") == null ? null : Arrays.asList(req.getParameter("terms").split("\\s*,\\s*"));
                         OAuth1 oauth = null;
                         try {
@@ -112,7 +113,7 @@ public class TwitterServlet extends HttpServlet {
                             crs.setConfig(oauth, terms, Boolean.valueOf(req.getParameter("media")), dbProperties);
                             Thread t = new Thread(crs);
                             t.setName("Master-of-desaster");
-                            CouchDbProperties masterDbProperties = Modules.getCouchDbProperties(req.getServletContext(), Modules.CONFIGDB);
+                            CouchDbProperties masterDbProperties = Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB);
                             CouchDbClient dbClient = new CouchDbClient(masterDbProperties);
                             JsonObject j;
                             boolean existed;
@@ -148,7 +149,7 @@ public class TwitterServlet extends HttpServlet {
                 default:
                     break;
             }
-            resp.sendRedirect(Modules.TWITTER);
+            resp.sendRedirect(Constants.TWITTER);
         }
     }
 }

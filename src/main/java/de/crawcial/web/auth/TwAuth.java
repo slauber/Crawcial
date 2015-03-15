@@ -1,6 +1,6 @@
 package de.crawcial.web.auth;
 
-import de.crawcial.web.util.Modules;
+import de.crawcial.Constants;
 import de.crawcial.web.util.Tokenmanager;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -32,7 +32,7 @@ public class TwAuth extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         loadProperties(req);
         if (CONSUMERKEY == null || CONSUMERKEY.equals("") || CONSUMERSECRET == null || CONSUMERSECRET.equals("")) {
-            resp.sendRedirect(Modules.CONFIGURATION);
+            resp.sendRedirect(Constants.CONFIGURATION);
         } else {
             Twitter twitter = new TwitterFactory().getInstance();
             twitter.setOAuthConsumer(CONSUMERKEY, CONSUMERSECRET);

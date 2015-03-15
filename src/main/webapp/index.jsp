@@ -1,6 +1,6 @@
+<%@ page import="de.crawcial.Constants" %>
 <%@ page import="de.crawcial.web.auth.AuthHelper" %>
 <%@ page import="de.crawcial.web.setup.Validator" %>
-<%@ page import="de.crawcial.web.util.Modules" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
@@ -14,7 +14,7 @@
 <body>
 <div id="container">
     <header>
-        <a href="<%=Modules.HOME%>"><h1>Crawcial</h1></a>
+        <a href="<%=Constants.HOME%>"><h1>Crawcial</h1></a>
     </header>
 
     <jsp:include page="include/nav.jsp"/>

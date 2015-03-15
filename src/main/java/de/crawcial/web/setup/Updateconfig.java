@@ -3,7 +3,7 @@ package de.crawcial.web.setup;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import de.crawcial.web.util.Modules;
+import de.crawcial.Constants;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 import org.lightcouch.DesignDocument;
@@ -22,15 +22,15 @@ import java.util.Properties;
  * Created by Sebastian Lauber on 09.03.15.
  */
 public class Updateconfig extends HttpServlet {
-    private final String DocUserId = "org.couchdb.user:crawcial_control";
-    private final String DocUserName = "crawcial_control";
-    private final String DocUserGroup = DocUserName;
-    private final String DocConfigDb = DocUserName;
+    private final String DOCUSERID = "org.couchdb.user:crawcial_control";
+    private final String DOCUSERNAME = "crawcial_control";
+    private final String DOCUSERGROUP = DOCUSERNAME;
+    private final String DOCCONFIGDB = DOCUSERNAME;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (Validator.isDbConfigured(req.getServletContext()) == 0) {
-            resp.sendRedirect(Modules.HOME);
+            resp.sendRedirect(Constants.HOME);
         } else {
             throwError(resp, 1020);
         }
@@ -60,20 +60,20 @@ public class Updateconfig extends HttpServlet {
 
                     // Create a new user with random password
                     userJs = new JsonObject();
-                    userJs.addProperty("_id", DocUserId);
+                    userJs.addProperty("_id", DOCUSERID);
                     userJs.addProperty("type", "user");
-                    userJs.addProperty("name", DocUserName);
+                    userJs.addProperty("name", DOCUSERNAME);
                     String rndPassword = new BigInteger(130, new SecureRandom()).toString(32);
                     userJs.addProperty("password", rndPassword);
                     JsonArray roles = new JsonArray();
-                    roles.add(new JsonPrimitive(DocUserGroup));
+                    roles.add(new JsonPrimitive(DOCUSERGROUP));
                     userJs.add("roles", roles);
 
                     try {
                         dbClient.save(userJs);
                     } catch (CouchDbException e) {
                         if (e.getMessage().equals("Conflict")) {
-                            JsonObject o = dbClient.find(JsonObject.class, DocUserId);
+                            JsonObject o = dbClient.find(JsonObject.class, DOCUSERID);
                             dbClient.remove(o);
                             dbClient.save(userJs);
                         } else {
@@ -93,15 +93,15 @@ public class Updateconfig extends HttpServlet {
 
                     // Create config db and facebook / twitter db
                     dbClient.shutdown();
-                    dbClient = new CouchDbClient(DocConfigDb, true, protocol, host, port, user, password);
+                    dbClient = new CouchDbClient(DOCCONFIGDB, true, protocol, host, port, user, password);
                     dbClient.save(securityJs);
                     DesignDocument designDoc = dbClient.design().getFromDesk("crawcial");
                     dbClient.design().synchronizeWithDb(designDoc);
                     dbClient.shutdown();
-                    dbClient = new CouchDbClient(Modules.FACEBOOK_DB, true, protocol, host, port, user, password);
+                    dbClient = new CouchDbClient(Constants.FACEBOOK_DB, true, protocol, host, port, user, password);
                     dbClient.save(securityJs);
                     dbClient.shutdown();
-                    dbClient = new CouchDbClient(Modules.TWITTER_DB, true, protocol, host, port, user, password);
+                    dbClient = new CouchDbClient(Constants.TWITTER_DB, true, protocol, host, port, user, password);
                     dbClient.save(securityJs);
                     dbClient.shutdown();
 
@@ -112,13 +112,13 @@ public class Updateconfig extends HttpServlet {
                     p.put("dbprotocol", protocol);
                     p.put("dbhost", host);
                     p.put("dbport", String.valueOf(port));
-                    p.put("dbusername", DocUserName);
+                    p.put("dbusername", DOCUSERNAME);
                     p.put("dbpassword", rndPassword);
 
                     String path = getServletContext().getRealPath("/WEB-INF");
-                    FileOutputStream fos = new FileOutputStream(path + "/" + Modules.CONFIG_FILE);
+                    FileOutputStream fos = new FileOutputStream(path + "/" + Constants.CONFIG_FILE);
                     p.store(fos, null);
-                    resp.sendRedirect(Modules.USERMGMT);
+                    resp.sendRedirect(Constants.USERMGMT);
                 } else {
                     throwError(resp, 1002);
                 }
@@ -131,7 +131,7 @@ public class Updateconfig extends HttpServlet {
     }
 
     private void throwError(HttpServletResponse resp, int code) throws IOException {
-        resp.sendRedirect("/" + Modules.SETUP + "&e=" + code);
+        resp.sendRedirect("/" + Constants.SETUP + "&e=" + code);
         resp.getWriter().println("Could not update config - Code " + code);
     }
 }

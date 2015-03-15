@@ -1,6 +1,6 @@
 package de.crawcial.web.auth;
 
-import de.crawcial.web.util.Modules;
+import de.crawcial.Constants;
 import de.crawcial.web.util.Tokenmanager;
 
 import javax.servlet.ServletException;
@@ -40,7 +40,7 @@ public class FbAuth extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         loadProperties(req);
         if (FB_APP_ID == null || FB_APP_ID.equals("") || FB_APP_SECRET == null || FB_APP_SECRET.equals("")) {
-            resp.sendRedirect(Modules.CONFIGURATION);
+            resp.sendRedirect(Constants.CONFIGURATION);
         } else {
             resp.sendRedirect(getFbAuthUrl());
         }
@@ -69,7 +69,7 @@ public class FbAuth extends HttpServlet {
             fbLoginUrl = "http://www.facebook.com/dialog/oauth?" + "client_id="
                     + FB_APP_ID + "&redirect_uri="
                     + URLEncoder.encode(REDIRECT_URI, "UTF-8")
-                    + "&scope=email";
+                    + "&scope=email,manage_pages";
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

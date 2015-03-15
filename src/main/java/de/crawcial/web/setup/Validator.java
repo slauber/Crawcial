@@ -1,5 +1,6 @@
 package de.crawcial.web.setup;
 
+import de.crawcial.Constants;
 import de.crawcial.web.util.Modules;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
@@ -23,7 +24,7 @@ public class Validator {
 
     // Returns information about the configuration state
     public static int isDbConfigured(ServletContext sc) {
-        final InputStream is = sc.getResourceAsStream(Modules.CONFIG_PATH);
+        final InputStream is = sc.getResourceAsStream(Constants.CONFIG_PATH);
         if (is == null) {
             return NO_CONFIG_FILE;
         }
@@ -44,7 +45,7 @@ public class Validator {
             }
 
             // Try to establish a database connection to verify credentials
-            CouchDbClient c = new CouchDbClient(Modules.CONFIGDB, createdb, dbprotocol, dbhost, dbport, dbusername, dbpassword);
+            CouchDbClient c = new CouchDbClient(Constants.CONFIGDB, createdb, dbprotocol, dbhost, dbport, dbusername, dbpassword);
             is.close();
             c.shutdown();
             return OK;

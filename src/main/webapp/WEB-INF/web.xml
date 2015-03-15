@@ -26,12 +26,22 @@
 
     <servlet>
         <servlet-name>Twitter</servlet-name>
-        <servlet-class>de.crawcial.web.social.TwitterServlet</servlet-class>
+        <servlet-class>de.crawcial.web.social.TwServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
         <servlet-name>Twitter</servlet-name>
         <url-pattern>/twitter</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Facebook</servlet-name>
+        <servlet-class>de.crawcial.web.social.FbServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Facebook</servlet-name>
+        <url-pattern>/facebook</url-pattern>
     </servlet-mapping>
 
 

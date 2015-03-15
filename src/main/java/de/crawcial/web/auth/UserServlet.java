@@ -1,6 +1,7 @@
 package de.crawcial.web.auth;
 
 import com.google.gson.JsonObject;
+import de.crawcial.Constants;
 import de.crawcial.web.util.Modules;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
@@ -28,7 +29,7 @@ public class UserServlet extends HttpServlet {
 
     public static boolean isAdminParty(ServletContext sc) {
         try {
-            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Modules.CONFIGDB));
+            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
             return dbClient.view("crawcial/allUsers").query(JsonObject.class).size() == 0;
         } catch (Exception e) {
             return false;
@@ -40,17 +41,17 @@ public class UserServlet extends HttpServlet {
             return false;
         }
         String user = s.substring(0, s.indexOf("|"));
-        if (Modules.getCouchDbProperties(sc, Modules.CONFIGDB) != null) {
+        if (Modules.getCouchDbProperties(sc, Constants.CONFIGDB) != null) {
             CouchDbClient dbClient;
             try {
-                dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Modules.CONFIGDB));
+                dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
             } catch (CouchDbException e) {
                 return false;
             }
             try {
                 JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + user);
                 dbClient.shutdown();
-                return (o.has(AuthServlet.COOKIE_NAME) && o.get(AuthServlet.COOKIE_NAME).getAsString().equals(s));
+                return (o.has(Constants.COOKIE_NAME) && o.get(Constants.COOKIE_NAME).getAsString().equals(s));
             } catch (Exception e) {
                 dbClient.shutdown();
             }
@@ -60,7 +61,7 @@ public class UserServlet extends HttpServlet {
     }
 
     protected static Cookie verifyCredentials(ServletContext sc, String username, String password) throws IOException {
-        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Modules.CONFIGDB));
+        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
         try {
             JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + username);
             if (validatePassword(password, o.get("passhash").getAsString())) {
@@ -75,12 +76,12 @@ public class UserServlet extends HttpServlet {
     }
 
     protected static Cookie setSessionCookie(ServletContext sc, String username) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
-        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Modules.CONFIGDB));
+        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
         try {
             JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + username);
-            Cookie sessionCookie = new Cookie(AuthServlet.COOKIE_NAME, username + "|" +
+            Cookie sessionCookie = new Cookie(Constants.COOKIE_NAME, username + "|" +
                     generateStrongPasswordHash(String.valueOf(Math.random())));
-            o.addProperty(AuthServlet.COOKIE_NAME, sessionCookie.getValue());
+            o.addProperty(Constants.COOKIE_NAME, sessionCookie.getValue());
             dbClient.update(o);
             dbClient.shutdown();
             return sessionCookie;
@@ -100,9 +101,6 @@ public class UserServlet extends HttpServlet {
         return iterations + ":" + toHex(salt) + ":" + toHex(hash);
     }
 
-    /*
-    Source: http://howtodoinjava.com/2013/07/22/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
-     */
 
     private static String getSalt() throws NoSuchAlgorithmException {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -149,21 +147,20 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
-        if (AuthHelper.isAuthenticated(req) && action != null) {
-            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(req.getServletContext(), Modules.CONFIGDB));
+        if (AuthHelper.isAuthenticated(req) && req.getParameter(Constants.ACTION) != null) {
+            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB));
             JsonObject userJson;
 
-            if (verifySession(req.getServletContext(), AuthHelper.getSessionCookie(req)) && action.equals("deluser")) {
+            if (verifySession(req.getServletContext(), AuthHelper.getSessionCookie(req)) && req.getParameter(Constants.ACTION).equals("deluser")) {
                 String cookie = AuthHelper.getSessionCookie(req);
                 String cookieUsername = cookie.substring(0, cookie.indexOf("|"));
                 userJson = dbClient.find(JsonObject.class, USER_PREFIX + cookieUsername);
                 dbClient.remove(userJson);
                 dbClient.shutdown();
-                Cookie c = new Cookie(AuthServlet.COOKIE_NAME, "");
+                Cookie c = new Cookie(Constants.COOKIE_NAME, "");
                 c.setMaxAge(0);
                 resp.addCookie(c);
-                resp.sendRedirect(Modules.HOME);
+                resp.sendRedirect(Constants.HOME);
             }
             if (req.getParameter("user") != null) {
 
@@ -174,7 +171,7 @@ public class UserServlet extends HttpServlet {
                     userJson = null;
                 }
 
-                if (userJson == null && action.equals("adduser") && req.getParameter("password") != null
+                if (userJson == null && req.getParameter(Constants.ACTION).equals("adduser") && req.getParameter("password") != null
                         && username.length() > 3 && req.getParameter("password").length() > 3) {
                     userJson = new JsonObject();
                     userJson.addProperty("_id", USER_PREFIX + username);
@@ -193,14 +190,14 @@ public class UserServlet extends HttpServlet {
 
                         if (validatePassword(req.getParameter("password"), returnedPassword)) {
                             resp.addCookie(verifyCredentials(getServletContext(), username, req.getParameter("password")));
-                            resp.sendRedirect(Modules.HOME);
+                            resp.sendRedirect(Constants.HOME);
                         }
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else {
-                    resp.sendRedirect(Modules.USERMGMT + "&e=1200");
+                    resp.sendRedirect(Constants.USERMGMT + "&e=1200");
                 }
                 dbClient.shutdown();
             }

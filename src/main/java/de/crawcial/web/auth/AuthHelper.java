@@ -1,5 +1,7 @@
 package de.crawcial.web.auth;
 
+import de.crawcial.Constants;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -18,7 +20,7 @@ public class AuthHelper {
     public static String getSessionCookie(HttpServletRequest request) {
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
-                if (c.getName().equals(AuthServlet.COOKIE_NAME)) {
+                if (c.getName().equals(Constants.COOKIE_NAME)) {
                     return c.getValue();
                 }
             }

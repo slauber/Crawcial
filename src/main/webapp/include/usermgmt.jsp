@@ -1,5 +1,5 @@
+<%@ page import="de.crawcial.Constants" %>
 <%@ page import="de.crawcial.web.auth.AuthHelper" %>
-<%@ page import="de.crawcial.web.util.Modules" %>
 <% if (AuthHelper.isAuthenticated(request)) {%>
 <h2>Create new user</h2>
 <% if (request.getParameter("e") != null && request.getParameter("e").equals("1200")) { %>
@@ -29,5 +29,5 @@
     <input type="hidden" name="action" value="deluser">
 </form>
 <% } else {
-    response.sendRedirect(Modules.LOGIN);
+    response.sendRedirect(Constants.LOGIN);
 } %>
