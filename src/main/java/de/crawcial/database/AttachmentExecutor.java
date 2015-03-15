@@ -5,10 +5,9 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
@@ -49,21 +48,20 @@ class AttachmentExecutor implements Runnable {
                 logger.debug("Downloading: {}", urlString);
 
                 String contentType = url.openConnection().getContentType();
-                InputStream in = new BufferedInputStream(url.openStream());
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                byte[] buf = new byte[1024];
-                int n;
-                while (-1 != (n = in.read(buf))) {
-                    out.write(buf, 0, n);
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(url.openStream()));
+                StringBuilder sb = new StringBuilder();
+
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    sb.append(inputLine);
                 }
-                out.close();
                 in.close();
-                byte[] responseBytes = out.toByteArray();
 
                 // Check, whether download was successful
                 if (contentType != null) {
                     // Store as attachment
-                    String attachmentString = Base64.getEncoder().encodeToString(responseBytes);
+                    String attachmentString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
                     attachmentObj.addProperty("content_type", contentType);
                     attachmentObj.addProperty("data", attachmentString);
                     attachmentObjRoot.add(urlString, attachmentObj);
