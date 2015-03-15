@@ -5,6 +5,8 @@ import de.crawcial.database.util.CouchDbCloneClient;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 import org.lightcouch.DesignDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
@@ -17,6 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class DatabaseService {
     private static final DatabaseService ourInstance = new DatabaseService();
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
     private static int bufferLimit = 200;
     private static boolean downloadMedia = false;
     LinkedBlockingQueue<Runnable> attachmentExecutors;
@@ -71,9 +74,10 @@ public class DatabaseService {
     }
 
     void loadAttachment(JsonObject status) {
-        if (Runtime.getRuntime().totalMemory() / (float) Runtime.getRuntime().freeMemory() < 0.125) {
+        if (Runtime.getRuntime().maxMemory() / (float) Runtime.getRuntime().totalMemory() < 1.25) {
             downloadMedia = false;
             jsonObjectVector.add(status);
+            logger.debug("Not persisted due to mem limit");
         } else {
             es.execute(new AttachmentExecutor(status, jsonObjectVector));
         }
