@@ -59,7 +59,7 @@ public class FbAuth extends HttpServlet {
             tokenCookie.setMaxAge(-1);
             tokenCookie.setHttpOnly(true);
             resp.addCookie(tokenCookie);
-            resp.sendRedirect("/");
+            resp.sendRedirect(Constants.FACEBOOK);
         }
     }
 

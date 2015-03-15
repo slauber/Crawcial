@@ -23,6 +23,25 @@ public class FbServlet extends HttpServlet {
     final static private Logger logger = LoggerFactory.getLogger(FbServlet.class);
     static Facebook facebook = FacebookFactory.getSingleton();
 
+    public static ResponseList<Account> getPages(HttpServletRequest req) throws IOException {
+        if (AuthHelper.isAuthenticated(req)) {
+            try {
+                facebook.setOAuthAppId(Tokenmanager.getSocialToken(req).get("fbappid"), Tokenmanager.getSocialToken(req).get("fbappsecret"));
+            } catch (IllegalStateException e) {
+                // Macht nix
+            } catch (IOException e) {
+                return null;
+            }
+            facebook.setOAuthAccessToken(Tokenmanager.getFacebookAccessToken(req));
+            try {
+                return facebook.getAccounts();
+            } catch (FacebookException | IllegalStateException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter(Constants.ACTION) != null && AuthHelper.isAuthenticated(req)) {
@@ -33,25 +52,10 @@ public class FbServlet extends HttpServlet {
             }
             facebook.setOAuthAccessToken(Tokenmanager.getFacebookAccessToken(req));
             switch (req.getParameter(Constants.ACTION)) {
-                case "getPages":
-                    ResponseList<Account> accounts = null;
-                    try {
-                        accounts = facebook.getAccounts();
-                        for (Account a : accounts) {
-                            if (a.getPerms().contains("ADMINISTER")) {
-                                resp.getWriter().print("<a href=\"/facebook?action=enablePage&pageid=" + a.getId() + "\">");
-                                resp.getWriter().println(a.getId() + " - " + a.getName() + " " + a.getAccessToken());
-                                resp.getWriter().println(a.getPerms() + "</a><br>\n");
-                            }
-                        }
-                    } catch (FacebookException e) {
-                        e.printStackTrace();
-                    }
-                    break;
                 case "enablePage":
                     if (req.getParameter("pageid") != null) {
                         try {
-                            accounts = facebook.getAccounts();
+                            ResponseList<Account> accounts = facebook.getAccounts();
                             AccessToken at = null;
                             for (Account a : accounts) {
                                 if (a.getPerms().contains("ADMINISTER") && a.getId().equalsIgnoreCase(req.getParameter("pageid"))) {

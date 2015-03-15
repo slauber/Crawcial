@@ -25,4 +25,5 @@ public class Constants {
     public final static String CONFIGURATION = baseUrl + "configuration";
     public static final String SETUP = baseUrl + "setup";
     public static final String LOGIN = baseUrl + "login";
+    public static final String FACEBOOK = baseUrl + "facebook";
 }

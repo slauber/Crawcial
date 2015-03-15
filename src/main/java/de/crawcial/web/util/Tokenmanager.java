@@ -98,7 +98,11 @@ public class Tokenmanager extends HttpServlet {
     }
 
     public static facebook4j.auth.AccessToken getFacebookAccessToken(HttpServletRequest req) {
-        return new facebook4j.auth.AccessToken(getTokenFromCookie(req, "fbtoken"));
+        try {
+            return new facebook4j.auth.AccessToken(getTokenFromCookie(req, "fbtoken"));
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
     private static String getTokenFromCookie(HttpServletRequest req, String name) {

@@ -65,7 +65,7 @@ public class TwAuth extends HttpServlet {
             tokenCookie.setMaxAge(-1);
             tokenCookie.setHttpOnly(true);
             resp.addCookie(tokenCookie);
-            resp.sendRedirect("/");
+            resp.sendRedirect(Constants.TWITTER);
         } catch (TwitterException e) {
             throw new ServletException(e);
         }

@@ -10,7 +10,10 @@
         </li>
         <% if (AuthHelper.isAuthenticated(request)) {%>
         <li>
-            <a href="/<%=Constants.TWITTER%>">Twitter Crawler</a>
+            <a href="/<%=Constants.FACEBOOK%>">Facebook</a>
+        </li>
+        <li>
+            <a href="/<%=Constants.TWITTER%>">Twitter</a>
         </li>
         <li>
             <a href="/<%=Constants.CONFIGURATION%>">Configuration</a>
