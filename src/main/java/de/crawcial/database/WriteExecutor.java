@@ -11,7 +11,7 @@ import java.util.Vector;
  */
 class WriteExecutor implements Runnable {
     private final Vector<JsonObject> vector;
-    private final CouchDbClient dbClient = new CouchDbCloneClient(DatabaseService.getInstance().getDbProperties());
+    private CouchDbClient dbClient;
     private boolean alive = true;
     private int bufferLimit;
 
@@ -25,8 +25,10 @@ class WriteExecutor implements Runnable {
         while (vector.size() > 0 || alive) {
             if (vector.size() >= bufferLimit) {
                 synchronized (vector) {
+                    dbClient = new CouchDbCloneClient(DatabaseService.getInstance().getDbProperties());
                     dbClient.bulk(vector, true);
                     vector.clear();
+                    dbClient.shutdown();
                 }
             }
             try {
@@ -38,6 +40,7 @@ class WriteExecutor implements Runnable {
     }
 
     public void shutdown() {
+        dbClient = new CouchDbCloneClient(DatabaseService.getInstance().getDbProperties());
         alive = false;
         if (vector.size() > 0) {
             synchronized (vector) {

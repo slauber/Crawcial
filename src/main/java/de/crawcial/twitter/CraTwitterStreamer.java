@@ -136,6 +136,8 @@ public class CraTwitterStreamer implements Runnable {
             // Disconnect the hosebird client
             client.stop();
 
+            System.gc();
+
             // Shutdown loadExecutors gracefully and join their threads
             for (LoadExecutor l : loadExecutors) {
                 l.shutdown();
@@ -156,6 +158,8 @@ public class CraTwitterStreamer implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            System.gc();
 
             // Return the num of messages - warnings (that are not persisted)
             result = client.getStatsTracker().getNumMessages() - DatabaseService.getInstance().getWarningCnt();

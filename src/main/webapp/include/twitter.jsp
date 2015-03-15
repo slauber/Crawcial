@@ -49,8 +49,7 @@
 <form class="crawcial-login-form" action="twitter" method="post">
     <div class="crawcial-form-row">
         <input class="crawcial-form-large" type="text" name="terms"
-               value="
-               <%if(request.getParameter("trends")!=null){%><%=new String(Base64.decodeBase64(request.getParameter("trends"))).trim()%><%}%>"
+               value="<%if(request.getParameter("trends")!=null){%><%=new String(Base64.decodeBase64(request.getParameter("trends"))).trim()%><%}%>"
                placeholder="Filter terms" autofocus="">
     </div>
     <div>

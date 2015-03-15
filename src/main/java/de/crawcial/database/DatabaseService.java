@@ -19,6 +19,7 @@ public class DatabaseService {
     private static final DatabaseService ourInstance = new DatabaseService();
     private static int bufferLimit = 200;
     private static boolean downloadMedia = false;
+    LinkedBlockingQueue<Runnable> attachmentExecutors;
     private ExecutorService es;
     private Vector<JsonObject> jsonObjectVector = new Vector<>(bufferLimit);
     private WriteExecutor writeExecutor;
@@ -58,8 +59,8 @@ public class DatabaseService {
         dbClient.design().synchronizeWithDb(designDoc);
         dbClient.shutdown();
 
+        attachmentExecutors = new LinkedBlockingQueue<>();
         if (downloadMedia) {
-            LinkedBlockingQueue<Runnable> attachmentExecutors = new LinkedBlockingQueue<>();
             es = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
                     Runtime.getRuntime().availableProcessors() * 2, 30, TimeUnit.SECONDS, attachmentExecutors);
         }
@@ -70,7 +71,12 @@ public class DatabaseService {
     }
 
     void loadAttachment(JsonObject status) {
-        es.execute(new AttachmentExecutor(status, jsonObjectVector));
+        if (Runtime.getRuntime().totalMemory() / (float) Runtime.getRuntime().freeMemory() < 0.125) {
+            downloadMedia = false;
+            jsonObjectVector.add(status);
+        } else {
+            es.execute(new AttachmentExecutor(status, jsonObjectVector));
+        }
     }
 
     public Vector<JsonObject> getJsonObjectVector() {

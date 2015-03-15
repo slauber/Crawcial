@@ -32,21 +32,18 @@ class AttachmentExecutor implements Runnable {
         JsonArray mediaArray = json.get("extended_entities").getAsJsonObject()
                 .get("media").getAsJsonArray();
 
-
         JsonObject attachmentObjRoot = new JsonObject();
 
         // Iterate through media array (if more than zero exist)
         for (int i = 0; i < mediaArray.size(); ++i) {
             JsonObject attachmentObj = new JsonObject();
-            String urlString = mediaArray.get(i).getAsJsonObject().get("media_url_https").getAsString() + ":small";
+            String urlString = mediaArray.get(i).getAsJsonObject().get("media_url").getAsString() + ":small";
             URL url;
 
             // Download into byte[]
             try {
                 url = new URL(urlString);
-
                 logger.debug("Downloading: {}", urlString);
-
                 String contentType = url.openConnection().getContentType();
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(url.openStream()));
@@ -76,10 +73,9 @@ class AttachmentExecutor implements Runnable {
 
         if (!attachmentObjRoot.isJsonNull()) {
             json.add("_attachments", attachmentObjRoot);
+            logger.debug("Download ok - id: {}", json.get("_id"));
         }
-
         target.add(json);
-
     }
 }
 
