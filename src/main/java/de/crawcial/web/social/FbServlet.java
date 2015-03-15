@@ -27,10 +27,10 @@ public class FbServlet extends HttpServlet {
         if (req.getParameter(Constants.ACTION) != null && AuthHelper.isAuthenticated(req)) {
             try {
                 facebook.setOAuthAppId(Tokenmanager.getSocialToken(req).get("fbappid"), Tokenmanager.getSocialToken(req).get("fbappsecret"));
-                facebook.setOAuthAccessToken(Tokenmanager.getFacebookAccessToken(req));
             } catch (IllegalStateException e) {
                 // macht nix
             }
+            facebook.setOAuthAccessToken(Tokenmanager.getFacebookAccessToken(req));
             switch (req.getParameter(Constants.ACTION)) {
                 case "getPages":
                     ResponseList<Account> accounts = null;
