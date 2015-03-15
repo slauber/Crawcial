@@ -4,6 +4,7 @@ import de.crawcial.Constants;
 import de.crawcial.web.auth.AuthHelper;
 import de.crawcial.web.util.Tokenmanager;
 import facebook4j.*;
+import facebook4j.auth.AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +39,34 @@ public class FbServlet extends HttpServlet {
                         accounts = facebook.getAccounts();
                         for (Account a : accounts) {
                             if (a.getPerms().contains("ADMINISTER")) {
-                                resp.getWriter().print("<a href=\"https://facebook.com/" + a.getId() + "\">");
+                                resp.getWriter().print("<a href=\"/facebook?action=enablePage&pageid=" + a.getId() + "\">");
                                 resp.getWriter().println(a.getId() + " - " + a.getName() + " " + a.getAccessToken());
                                 resp.getWriter().println(a.getPerms() + "</a><br>\n");
                             }
                         }
                     } catch (FacebookException e) {
                         e.printStackTrace();
+                    }
+                    break;
+                case "enablePage":
+                    if (req.getParameter("pageid") != null) {
+                        try {
+                            accounts = facebook.getAccounts();
+                            AccessToken at = null;
+                            for (Account a : accounts) {
+                                if (a.getPerms().contains("ADMINISTER") && a.getId().equalsIgnoreCase(req.getParameter("pageid"))) {
+                                    at = new AccessToken(a.getAccessToken());
+                                }
+                            }
+                            if (at != null) {
+                                facebook.setOAuthAccessToken(at);
+                                facebook.pages().installTab(req.getParameter("pageid"), Tokenmanager.getSocialToken(req).get("fbappid"));
+                                facebook.rawAPI().callPostAPI(req.getParameter("pageid") + "/subscribed_apps");
+                                resp.getWriter().println("Crawcial was successfully installed on Page ID: " + req.getParameter("pageid"));
+                            }
+                        } catch (FacebookException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
                 default:
