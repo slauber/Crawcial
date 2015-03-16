@@ -2,6 +2,7 @@ package de.crawcial.database;
 
 import com.google.gson.JsonObject;
 import de.crawcial.database.util.CouchDbCloneClient;
+import de.crawcial.twitter.CraTwitterStreamer;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 import org.lightcouch.DesignDocument;
@@ -74,11 +75,12 @@ public class DatabaseService {
     }
 
     void loadAttachment(JsonObject status) {
-        if (Runtime.getRuntime().totalMemory() / (float) Runtime.getRuntime().freeMemory() > 10) {
-            logger.error("total: {}, free: {]", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().freeMemory());
+        Runtime r = Runtime.getRuntime();
+        if (r.totalMemory() * 1.1 >= r.maxMemory() && r.totalMemory() / (float) r.freeMemory() > 10) {
+            CraTwitterStreamer.getInstance().setLowMemory(true);
             downloadMedia = false;
             jsonObjectVector.add(status);
-            logger.debug("Not persisted due to mem limit");
+            logger.debug("Persistence disable due to mem limit");
         } else {
             es.execute(new AttachmentExecutor(status, jsonObjectVector));
         }
@@ -91,7 +93,7 @@ public class DatabaseService {
     public void shutdown() throws InterruptedException {
         if (es != null) {
             es.shutdown();
-            if (es.awaitTermination(1, TimeUnit.MINUTES)) {
+            if (es.awaitTermination(30, TimeUnit.SECONDS)) {
                 es.shutdownNow();
             }
         }

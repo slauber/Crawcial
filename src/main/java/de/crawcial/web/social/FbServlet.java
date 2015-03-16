@@ -160,11 +160,11 @@ public class FbServlet extends HttpServlet {
         } else {
             // 1. get received JSON data from request
             String signature = req.getHeader("X-Hub-Signature");
-            logger.info(req.getParameterMap().toString());
             BufferedReader br = new BufferedReader(new InputStreamReader(req.getInputStream()));
             String json = br.readLine();
             if (verifySignature(json, signature, socialToken.get("fbappsecret"))) {
                 resp.setStatus(200);
+                logger.info(json);
             } else {
                 resp.setStatus(403);
             }

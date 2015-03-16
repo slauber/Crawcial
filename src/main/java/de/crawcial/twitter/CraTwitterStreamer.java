@@ -33,12 +33,21 @@ public class CraTwitterStreamer implements Runnable {
     private boolean configSet = false;
     private boolean active = false;
     private boolean running = false;
+    private boolean lowMemory = false;
     private long result;
     private int threads = Runtime.getRuntime().availableProcessors();
     private Date startDate;
 
     public static CraTwitterStreamer getInstance() {
         return ourInstance;
+    }
+
+    public boolean isLowMemory() {
+        return lowMemory;
+    }
+
+    public void setLowMemory(boolean lowMemory) {
+        this.lowMemory = lowMemory;
     }
 
     public boolean isActive() {
@@ -152,7 +161,7 @@ public class CraTwitterStreamer implements Runnable {
                 }
             }
 
-            // Shutdown the database service (AttachementExecutors / WriteExecutor)
+            // Shutdown the database service (AttachmentExecutors / WriteExecutor)
             try {
                 ds.shutdown();
             } catch (InterruptedException e) {
