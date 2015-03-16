@@ -43,8 +43,7 @@
 
 <% if (Tokenmanager.getTwitterOAuth(request) != null) {
     if (!TwServlet.isRunning()) {%>
-<a href="twitter?action=trends">Preload terms with current world wide trending topic (it is not recommended to crawl
-    them all)</a>
+<a href="twitter?action=trends">Preload terms with current world wide trending topics</a>
 
 <form class="crawcial-login-form" action="twitter" method="post">
     <div class="crawcial-form-row">
@@ -54,7 +53,7 @@
     </div>
     <div>
         <input type="checkbox" name="media" id="media" value="true"/> Persist media (consumes more bandwidth and
-        storage)
+        storage, stops automatically if Crawcial runs out of memory)
     </div>
     <div class="crawcial-form-row">
         <button>Go</button>

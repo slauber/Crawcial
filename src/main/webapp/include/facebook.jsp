@@ -26,8 +26,23 @@
 %><p>Click to install crawcial on a page</p><%
     for (Account a : accounts) {%>
 <a href="facebook?action=enablePage&pageid=<%=a.getId()%>"><%=a.getName()%> - ID: <%=a.getId()%>
-</a><br><%
-            }
+</a><br>
+<%
+    }%>
+<div style="text-align: center; vertical-align: middle;width: 340px;">
+    <form class="crawcial-login-form" action="facebook" method="post">
+
+        <div class="crawcial-form-row">
+            <input class="crawcial-form-large" type="text" name="callback" value=""
+                   placeholder="Callback URL" autofocus="">
+        </div>
+        <div class="crawcial-form-row">
+            <button>Setup callback</button>
+        </div>
+        <input type="hidden" name="action" value="setupSubscriptions">
+    </form>
+</div>
+<%
         }
     }
 %>

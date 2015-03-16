@@ -18,6 +18,11 @@
                placeholder="Facebook App Secret">
     </div>
     <div class="crawcial-form-row">
+        <input class="crawcial-form-large" type="text" name="fbverifytoken"
+               value="<%=values.containsKey("fbverifytoken")?values.get("fbverifytoken"):""%>"
+               placeholder="Facebook Verify Token">
+    </div>
+    <div class="crawcial-form-row">
         <input class="crawcial-form-large" type="text" name="twconsumerkey"
                value="<%=values.containsKey("twconsumerkey")?values.get("twconsumerkey"):""%>"
                placeholder="Twitter Consumer Key">

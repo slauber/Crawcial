@@ -28,7 +28,7 @@ import java.util.Map;
  * Created by Sebastian Lauber on 10.03.2015.
  */
 public class Tokenmanager extends HttpServlet {
-    private final static String[] keys = {"fbappid", "fbappsecret", "twconsumerkey", "twconsumersecret"};
+    private final static String[] keys = {"fbappid", "fbappsecret", "fbverifytoken", "twconsumerkey", "twconsumersecret"};
 
     public static Map<String, String> getSocialToken(HttpServletRequest req) throws IOException {
         CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB));

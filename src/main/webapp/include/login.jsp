@@ -22,10 +22,6 @@
         <div class="crawcial-form-row">
             <button>Login</button>
         </div>
-        <div class="crawcial-form-row">
-            <!--<label class="uk-float-left"><input type="checkbox" name="_remember_me">Remember me</label> -->
-        </div>
-
         <input type="hidden" name="action" value="signin">
     </form>
 </div>

@@ -74,7 +74,8 @@ public class DatabaseService {
     }
 
     void loadAttachment(JsonObject status) {
-        if (Runtime.getRuntime().maxMemory() / (float) Runtime.getRuntime().totalMemory() < 1.25) {
+        if (Runtime.getRuntime().totalMemory() / (float) Runtime.getRuntime().freeMemory() > 10) {
+            logger.error("total: {}, free: {]", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().freeMemory());
             downloadMedia = false;
             jsonObjectVector.add(status);
             logger.debug("Not persisted due to mem limit");
