@@ -80,12 +80,16 @@ public class CraTwitterStreamer implements Runnable {
         // Terms for filtering
         this.terms = terms;
         logger.info("Filtering tweets with terms {}", terms.toString());
-
+        lowMemory = false;
         configSet = true;
     }
 
     public void shutdown() {
         active = false;
+    }
+
+    public void forceShutdown() {
+        DatabaseService.getInstance().forceShutdown();
     }
 
     @Override

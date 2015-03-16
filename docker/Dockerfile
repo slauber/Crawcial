@@ -11,8 +11,8 @@ MAINTAINER Sebastian Lauber <mail@crawcial.de>
 # -------------------------------------------------------------------------
 WORKDIR /data
 RUN apt-get update && apt-get upgrade -y && apt-get install maven -y && apt-get autoclean -y
-RUN cd /data && git clone https://github.com/slauber/crawcial
 ADD start.sh /start.sh
+RUN chmod 555 /start.sh && cd /data && git clone https://github.com/slauber/crawcial
 
 # Default command to run on container boot
 CMD ["/start.sh"]

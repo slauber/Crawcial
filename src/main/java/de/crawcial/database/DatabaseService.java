@@ -76,11 +76,12 @@ public class DatabaseService {
 
     void loadAttachment(JsonObject status) {
         Runtime r = Runtime.getRuntime();
-        if (r.totalMemory() * 1.1 >= r.maxMemory() && r.totalMemory() / (float) r.freeMemory() > 10) {
+        if (r.totalMemory() * 1.1 >= r.maxMemory() && r.totalMemory() / (float) r.freeMemory() > 5) {
+            System.gc();
             CraTwitterStreamer.getInstance().setLowMemory(true);
             downloadMedia = false;
             jsonObjectVector.add(status);
-            logger.debug("Persistence disable due to mem limit");
+            logger.warn("Persistence disable due to mem limit");
         } else {
             es.execute(new AttachmentExecutor(status, jsonObjectVector));
         }
@@ -99,5 +100,11 @@ public class DatabaseService {
         }
         writeExecutor.shutdown();
         writeExecutorThread.join();
+    }
+
+    public synchronized void forceShutdown() {
+        jsonObjectVector.clear();
+        attachmentExecutors.clear();
+        es.shutdownNow();
     }
 }

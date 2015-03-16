@@ -26,7 +26,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Sebastian Lauber on 11.03.2015.
@@ -63,7 +66,7 @@ public class TwServlet extends HttpServlet {
                 twitter.setOAuthConsumer(socialKeys.get("twconsumerkey"), socialKeys.get("twconsumersecret"));
                 twitter.setOAuthAccessToken(Tokenmanager.getTwitter4jAccessToken(req));
             } catch (IllegalStateException e) {
-
+                // Macht nix
             }
             Trend[] trends = twitter.getPlaceTrends(1).getTrends();
             StringBuilder sb = new StringBuilder();
@@ -86,6 +89,10 @@ public class TwServlet extends HttpServlet {
         return null;
     }
 
+    public static boolean isLowMemory() {
+        return CraTwitterStreamer.getInstance().isLowMemory();
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter("action") != null && req.getParameter("action").equals("trends")) {
@@ -99,7 +106,8 @@ public class TwServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (AuthHelper.isAuthenticated(req) && req.getParameter("action") != null) {
             CraTwitterStreamer crs = CraTwitterStreamer.getInstance();
-            switch (req.getParameter("action")) {
+            String actionParam = req.getParameter(Constants.ACTION);
+            switch (actionParam) {
                 case "persist":
                     if (!CraTwitterStreamer.getInstance().isRunning() && !CraTwitterStreamer.getInstance().isActive()) {
                         CouchDbProperties dbProperties = Modules.getCouchDbProperties(req.getServletContext(), Constants.TWITTER_DB);
@@ -108,6 +116,7 @@ public class TwServlet extends HttpServlet {
                         try {
                             oauth = Tokenmanager.getTwitterOAuth(req);
                         } catch (URISyntaxException e) {
+                            // Macht nix
                         }
                         if (oauth != null && dbProperties != null && terms != null) {
                             crs.setConfig(oauth, terms, Boolean.valueOf(req.getParameter("media")), dbProperties);
@@ -126,9 +135,8 @@ public class TwServlet extends HttpServlet {
                             }
                             j.addProperty("_id", "twitter");
                             JsonArray jTerms = new JsonArray();
-                            Iterator<String> termsIt = terms.iterator();
-                            while (termsIt.hasNext()) {
-                                jTerms.add(new JsonPrimitive(termsIt.next()));
+                            for (String term : terms) {
+                                jTerms.add(new JsonPrimitive(term));
                             }
                             j.add("terms", jTerms);
                             j.addProperty("start", String.valueOf(System.currentTimeMillis()));
@@ -145,6 +153,9 @@ public class TwServlet extends HttpServlet {
                     break;
                 case "shutdown":
                     crs.shutdown();
+                    break;
+                case "shutdownNow":
+                    crs.forceShutdown();
                     break;
                 default:
                     break;

@@ -20,18 +20,27 @@
 <p><%=TwServlet.getStatus()%>
 </p>
 <% if (TwServlet.isShuttingDown()) {%>
-<strong>Crawcial for Twitter is shutting down</strong><%} else {%>
+<strong>Crawcial for Twitter is shutting down</strong>
+
+<form class="crawcial-login-form" action="twitter" method="post">
+    <button>Force shutdown (could cause data inconsistency)</button>
+    <input type="hidden" name="action" value="shutdownNow">
+</form>
+
+
+<%} else {%>
 <strong>Crawcial for Twitter is active</strong>
 
 <form class="crawcial-login-form" action="twitter" method="post">
     <button>Shutdown now</button>
     <input type="hidden" name="action" value="shutdown">
 </form>
+<% if (TwServlet.isLowMemory()) { %>
+<strong>Crawcial for Twitter ran out of memory and disabled the media downloader</strong>
 <%
+            }
         }
     }%>
-
-
 <% if (AuthHelper.isAuthenticated(request)) {
     if (twtoken == null) {%>
 <form action="twauth" method="post">

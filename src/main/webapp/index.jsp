@@ -1,7 +1,6 @@
 <%@ page import="de.crawcial.Constants" %>
 <%@ page import="de.crawcial.web.auth.AuthHelper" %>
 <%@ page import="de.crawcial.web.setup.Validator" %>
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -17,15 +16,15 @@
         <a href="<%=Constants.HOME%>"><h1>Crawcial</h1></a>
     </header>
 
-    <jsp:include page="include/nav.jsp"/>
+    <jsp:include page="WEB-INF/include/nav.jsp"/>
 
     <section id="content">
         <article>
             <% if (Validator.isDbConfigured(request.getServletContext()) != 0) {%>
-            <jsp:include page="include/setup.jsp"/>
+            <jsp:include page="WEB-INF/include/setup.jsp"/>
             <%} else {%>
             <% if (request.getParameter("p") != null) {
-                String p = "include/" + request.getParameter("p") + ".jsp" +
+                String p = "WEB-INF/include/" + request.getParameter("p") + ".jsp" +
                         (request.getParameter("e") != null ? "?e=" + request.getParameter("e") : "");
             %>
             <jsp:include page="<%=p%>"/>
@@ -47,11 +46,11 @@
         </article>
     </section>
     <aside>
-        <jsp:include page="include/sidebar.jsp"/>
+        <jsp:include page="WEB-INF/include/sidebar.jsp"/>
     </aside>
 
     <footer>
-        <jsp:include page="include/footer.jsp"/>
+        <jsp:include page="WEB-INF/include/footer.jsp"/>
     </footer>
 </div>
 </body>
