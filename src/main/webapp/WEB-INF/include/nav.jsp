@@ -5,9 +5,6 @@
         <li>
             <a href="<%=Constants.HOME%>">Home</a>
         </li>
-        <li>
-            <a href="/<%=Constants.LOGIN%>">Login</a>
-        </li>
         <% if (AuthHelper.isAuthenticated(request)) {%>
         <li>
             <a href="/<%=Constants.FACEBOOK%>">Facebook</a>

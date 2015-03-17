@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -128,9 +129,11 @@ public class TwServlet extends HttpServlet {
                         }
                         if (oauth != null && dbProperties != null && terms != null) {
                             Location l = null;
+                            String ne = null;
+                            String sw = null;
                             if (req.getParameter("geo") != null && req.getParameter("geo").equals("true")) {
-                                String ne = req.getParameter("ne");
-                                String sw = req.getParameter("sw");
+                                ne = req.getParameter("ne");
+                                sw = req.getParameter("sw");
 
                                 Location.Coordinate neC = new Location.Coordinate(Float.valueOf(ne.substring(ne.indexOf(" ")
                                         + 1, ne.indexOf(")"))), Float.valueOf(ne.substring(1, ne.indexOf(","))));
@@ -141,7 +144,7 @@ public class TwServlet extends HttpServlet {
                                 l = new Location(swC, neC);
                             }
                             crs.setConfig(oauth, terms, Boolean.valueOf(req.getParameter("media")), dbProperties,
-                                    req.getParameter("imgsize"), Boolean.valueOf(req.getParameter("imgsize")), l);
+                                    req.getParameter("imgsize"), Boolean.valueOf(req.getParameter("mediahttps")), l);
                             Thread t = new Thread(crs);
                             t.setName("Master-of-desaster");
                             CouchDbProperties masterDbProperties = Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB);
@@ -155,6 +158,13 @@ public class TwServlet extends HttpServlet {
                                 j = new JsonObject();
                                 existed = false;
                             }
+                            if (l != null) {
+                                j.addProperty("locNE", ne);
+                                j.addProperty("locSW", sw);
+                            }
+                            if (Boolean.valueOf(req.getParameter("media"))) {
+                                j.addProperty("media", req.getParameter("imgsize"));
+                            }
                             j.addProperty("_id", "twitter");
                             JsonArray jTerms = new JsonArray();
                             for (String term : terms) {
@@ -162,8 +172,8 @@ public class TwServlet extends HttpServlet {
                             }
                             j.add("terms", jTerms);
                             j.addProperty("start", String.valueOf(System.currentTimeMillis()));
-                            DateFormat df = DateFormat.getDateInstance();
-                            j.addProperty("startHumanReadable", df.format(new Date(System.currentTimeMillis())));
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                            j.addProperty("startHumanReadable", sdf.format(new Date(System.currentTimeMillis())));
                             if (existed) {
                                 dbClient.update(j);
                             } else {

@@ -3,9 +3,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <% if (!AuthHelper.isAuthenticated(request)) {%>
-<div class="crawcial-login-container" style="text-align: center; vertical-align: middle;width: 340px;">
+<div class="crawcial-login-container" style="text-align: center; vertical-align: middle;width: 340px;margin: 0 auto;">
 
-    <img class="uk-margin-bottom" src="img/crawcial.png" width="256" height="256" alt="Crawcial">
+    <img src="img/crawcial.png" width="256" height="256" alt="Crawcial">
 
     <form class="crawcial-login-form" action="auth" method="post">
 
@@ -26,7 +26,10 @@
     </form>
 </div>
 <%
-} else {
+} else {%>
+<form action="auth" method="post"><input type="hidden" name="action" value="signout">
+    <input type="submit" value="Sign out"></form>
+<%
     if (UserServlet.isAdminParty(request.getServletContext())) {
 %>
 It's admin party!

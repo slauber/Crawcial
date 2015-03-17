@@ -22,7 +22,10 @@
         <article>
             <% if (Validator.isDbConfigured(request.getServletContext()) != 0) {%>
             <jsp:include page="WEB-INF/include/setup.jsp"/>
-            <%} else {%>
+            <%
+            } else {
+                if (AuthHelper.isAuthenticated(request)) {
+            %>
             <% if (request.getParameter("p") != null) {
                 String p = "WEB-INF/include/" + request.getParameter("p") + ".jsp" +
                         (request.getParameter("e") != null ? "?e=" + request.getParameter("e") : "");
@@ -32,17 +35,15 @@
             <%
             } else {
             %>
-            <% if (AuthHelper.isAuthenticated(request)) {%>
-
-
-            <form action="auth" method="post"><input type="hidden" name="action" value="signout">
-                <input type="submit" value="Sign out"></form>
-            <% } else {%>
-            <h1>Welcome to Crawcial</h1>
-            <a href="auth"><img alt="Plain login" width=215 style="margin-top: 38px;" src="img/password.png"/></a>
-            <% }
-            }
-            }%>
+            <jsp:include page="WEB-INF/include/login.jsp"/>
+            <%
+                }
+            } else {%>
+            <jsp:include page="WEB-INF/include/login.jsp"/>
+            <%
+                    }
+                }
+            %>
         </article>
     </section>
     <aside>
