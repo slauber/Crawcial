@@ -20,6 +20,8 @@ public class Constants {
     public final static String COOKIE_NAME = "crawcialsession";
     public static final int TWITTER_ERROR = 10001;
     public static final int FACEBOOK_ERROR = 10002;
+    public static final int USER_ERROR = 11000;
+    public static final String USER_PREFIX = "de.crawcial.user:";
     private static final String baseUrl = "?p=";
     public final static String TWITTER = baseUrl + "twitter";
     public final static String USERMGMT = baseUrl + "usermgmt";
@@ -27,4 +29,5 @@ public class Constants {
     public static final String SETUP = baseUrl + "setup";
     public static final String LOGIN = baseUrl + "login";
     public static final String FACEBOOK = baseUrl + "facebook";
+
 }

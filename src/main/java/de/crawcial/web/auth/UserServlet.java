@@ -1,6 +1,5 @@
 package de.crawcial.web.auth;
 
-import com.google.gson.JsonObject;
 import de.crawcial.Constants;
 import de.crawcial.web.util.Modules;
 import org.lightcouch.CouchDbClient;
@@ -20,17 +19,16 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 /**
  * Created by Sebastian Lauber on 11.03.2015.
  */
 public class UserServlet extends HttpServlet {
-    private static final String USER_PREFIX = "de.crawcial.user:";
-
     public static boolean isAdminParty(ServletContext sc) {
         try {
             CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
-            return dbClient.view("crawcial/allUsers").query(JsonObject.class).size() == 0;
+            return dbClient.view("crawcial/allUsers").query(CrawcialUser.class).size() == 0;
         } catch (Exception e) {
             return false;
         }
@@ -49,9 +47,9 @@ public class UserServlet extends HttpServlet {
                 return false;
             }
             try {
-                JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + user);
+                CrawcialUser u = dbClient.find(CrawcialUser.class, Constants.USER_PREFIX + user);
                 dbClient.shutdown();
-                return (o.has(Constants.COOKIE_NAME) && o.get(Constants.COOKIE_NAME).getAsString().equals(s));
+                return (u.getCrawcialsession() != null && u.getCrawcialsession().equals(s));
             } catch (Exception e) {
                 dbClient.shutdown();
             }
@@ -63,8 +61,8 @@ public class UserServlet extends HttpServlet {
     protected static Cookie verifyCredentials(ServletContext sc, String username, String password) throws IOException {
         CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
         try {
-            JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + username);
-            if (validatePassword(password, o.get("passhash").getAsString())) {
+            CrawcialUser u = dbClient.find(CrawcialUser.class, Constants.USER_PREFIX + username);
+            if (validatePassword(password, u.getPasshash())) {
                 dbClient.shutdown();
                 return setSessionCookie(sc, username);
             }
@@ -78,11 +76,11 @@ public class UserServlet extends HttpServlet {
     protected static Cookie setSessionCookie(ServletContext sc, String username) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
         CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
         try {
-            JsonObject o = dbClient.find(JsonObject.class, USER_PREFIX + username);
+            CrawcialUser u = dbClient.find(CrawcialUser.class, Constants.USER_PREFIX + username);
             Cookie sessionCookie = new Cookie(Constants.COOKIE_NAME, username + "|" +
                     generateStrongPasswordHash(String.valueOf(Math.random())));
-            o.addProperty(Constants.COOKIE_NAME, sessionCookie.getValue());
-            dbClient.update(o);
+            u.setCrawcialsession(sessionCookie.getValue());
+            dbClient.update(u);
             dbClient.shutdown();
             return sessionCookie;
         } catch (Exception e) {
@@ -101,6 +99,25 @@ public class UserServlet extends HttpServlet {
         return iterations + ":" + toHex(salt) + ":" + toHex(hash);
     }
 
+    public static List<CrawcialUser> getUserlist(ServletContext sc) {
+        if (Modules.getCouchDbProperties(sc, Constants.CONFIGDB) != null) {
+            CouchDbClient dbClient;
+            try {
+                dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
+                List<CrawcialUser> dbUserList = dbClient.view("crawcial/allUsers").includeDocs(true).query(CrawcialUser.class);
+                if (dbUserList.size() == 0) {
+                    return null;
+                }
+                for (CrawcialUser u : dbUserList) {
+                    u.setPasshash("");
+                }
+                return dbUserList;
+            } catch (CouchDbException e) {
+                // Fällt durch auf null
+            }
+        }
+        return null;
+    }
 
     private static String getSalt() throws NoSuchAlgorithmException {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -149,44 +166,43 @@ public class UserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (AuthHelper.isAuthenticated(req) && req.getParameter(Constants.ACTION) != null) {
             CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB));
-            JsonObject userJson;
+            CrawcialUser crawcialUser;
 
             if (verifySession(req.getServletContext(), AuthHelper.getSessionCookie(req)) && req.getParameter(Constants.ACTION).equals("deluser")) {
-                String cookie = AuthHelper.getSessionCookie(req);
-                String cookieUsername = cookie.substring(0, cookie.indexOf("|"));
-                userJson = dbClient.find(JsonObject.class, USER_PREFIX + cookieUsername);
-                dbClient.remove(userJson);
+                if (req.getParameter("delusername") != null) {
+                    crawcialUser = dbClient.find(CrawcialUser.class, Constants.USER_PREFIX + req.getParameter("delusername"));
+                } else {
+                    String cookie = AuthHelper.getSessionCookie(req);
+                    String cookieUsername = cookie.substring(0, cookie.indexOf("|"));
+                    crawcialUser = dbClient.find(CrawcialUser.class, Constants.USER_PREFIX + cookieUsername);
+                    Cookie c = new Cookie(Constants.COOKIE_NAME, "");
+                    c.setMaxAge(0);
+                    resp.addCookie(c);
+                }
+                dbClient.remove(crawcialUser);
                 dbClient.shutdown();
-                Cookie c = new Cookie(Constants.COOKIE_NAME, "");
-                c.setMaxAge(0);
-                resp.addCookie(c);
                 resp.sendRedirect(Constants.HOME);
             }
             if (req.getParameter("user") != null) {
-
                 String username = req.getParameter("user").replaceAll("[^a-zA-Z0-9]+", "");
                 try {
-                    userJson = dbClient.find(JsonObject.class, USER_PREFIX + username);
+                    crawcialUser = dbClient.find(CrawcialUser.class, Constants.USER_PREFIX + username);
                 } catch (NoDocumentException e) {
-                    userJson = null;
+                    crawcialUser = null;
                 }
 
-                if (userJson == null && req.getParameter(Constants.ACTION).equals("adduser") && req.getParameter("password") != null
+                if (crawcialUser == null && req.getParameter(Constants.ACTION).equals("adduser") && req.getParameter("password") != null
                         && username.length() > 3 && req.getParameter("password").length() > 3) {
-                    userJson = new JsonObject();
-                    userJson.addProperty("_id", USER_PREFIX + username);
-                    userJson.addProperty("name", username);
                     try {
-                        userJson.addProperty("passhash", generateStrongPasswordHash(req.getParameter("password")));
+                        crawcialUser = new CrawcialUser(username, generateStrongPasswordHash(req.getParameter("password")));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                     try {
-
                         // Persist and retrieve passhash for verification
-                        String returnedPassword = dbClient.find(JsonObject.class,
-                                dbClient.save(userJson).getId()).get("passhash").getAsString();
+                        String returnedPassword = dbClient.find(CrawcialUser.class,
+                                dbClient.save(crawcialUser).getId()).getPasshash();
 
                         if (validatePassword(req.getParameter("password"), returnedPassword)) {
                             resp.addCookie(verifyCredentials(getServletContext(), username, req.getParameter("password")));
@@ -197,7 +213,7 @@ public class UserServlet extends HttpServlet {
                         e.printStackTrace();
                     }
                 } else {
-                    resp.sendRedirect(Constants.USERMGMT + "&e=1200");
+                    resp.sendRedirect(Constants.USERMGMT + "&e=" + Constants.USER_ERROR);
                 }
                 dbClient.shutdown();
             }
