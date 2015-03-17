@@ -32,7 +32,7 @@ public class TwAuth extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         loadProperties(req);
         if (CONSUMERKEY == null || CONSUMERKEY.equals("") || CONSUMERSECRET == null || CONSUMERSECRET.equals("")) {
-            resp.sendRedirect(Constants.CONFIGURATION);
+            resp.sendRedirect(Constants.CONFIGURATION + "&e=" + Constants.TWITTER_ERROR);
         } else {
             Twitter twitter = new TwitterFactory().getInstance();
             twitter.setOAuthConsumer(CONSUMERKEY, CONSUMERSECRET);
@@ -47,7 +47,7 @@ public class TwAuth extends HttpServlet {
                 resp.sendRedirect(requestToken.getAuthenticationURL());
 
             } catch (TwitterException e) {
-                throw new ServletException(e);
+                resp.sendRedirect(Constants.CONFIGURATION + "&e=" + Constants.TWITTER_ERROR);
             }
         }
     }

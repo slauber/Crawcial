@@ -1,3 +1,4 @@
+<%@ page import="de.crawcial.Constants" %>
 <%@ page import="de.crawcial.web.auth.AuthHelper" %>
 <%@ page import="de.crawcial.web.util.Tokenmanager" %>
 <%@ page import="java.util.Map" %>
@@ -5,8 +6,15 @@
 <% Map<String, String> values;
     if (AuthHelper.isAuthenticated(request)) {
         values = Tokenmanager.getSocialToken(request);
-%>
+        if (request.getParameter("e") != null && Integer.valueOf(request.getParameter("e")).equals(Constants.TWITTER_ERROR)) {%>
+<p style="color: crimson;font-weight: bold">Crawcial could not connect to Twitter, please check your consumer key and
+    secret.</p>
+<%}%>
+<p>In order to work properly, Crawcial needs some information about its corresponding apps on Facebook and Twitter.</p>
+
 <form class="crawcial-login-form" action="tokenmgr" method="post">
+    <p><a href="/apptutorial.jsp" target="_blank">Click here to learn how to get these values</a></p>
+
     <div class="crawcial-form-row">
         <input class="crawcial-form-large" type="text" name="fbappid"
                value="<%=values.containsKey("fbappid")?values.get("fbappid"):""%>"
@@ -16,11 +24,6 @@
         <input class="crawcial-form-large" type="text" name="fbappsecret"
                value="<%=values.containsKey("fbappsecret")?values.get("fbappsecret"):""%>"
                placeholder="Facebook App Secret">
-    </div>
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="fbverifytoken"
-               value="<%=values.containsKey("fbverifytoken")?values.get("fbverifytoken"):""%>"
-               placeholder="Facebook Verify Token">
     </div>
     <div class="crawcial-form-row">
         <input class="crawcial-form-large" type="text" name="twconsumerkey"
@@ -34,6 +37,11 @@
     </div>
     <div class="crawcial-form-row">
         <button <%=!AuthHelper.isAuthenticated(request) ? "disabled" : ""%>>Save</button>
+    </div>
+    <div class="crawcial-form-row">
+        <input class="crawcial-form-large" type="text" name="fbverifytoken"
+               value="<%=values.containsKey("fbverifytoken")?values.get("fbverifytoken"):""%>"
+               placeholder="Facebook Verify Token">
     </div>
     <input type="hidden" name="action" value="update">
 </form>

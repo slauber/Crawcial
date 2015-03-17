@@ -5,7 +5,6 @@ package de.crawcial;
  */
 public class Constants {
     public final static String ACTION = "action";
-    public final static String CODE = "code";
     public static final String CLEARCOOKIES = "auth?action=flush";
     public static final String HOME = "/";
     public static final String CONFIGDB = "crawcial_control";
@@ -19,6 +18,8 @@ public class Constants {
     public final static String USER = "user";
     public final static String PASSWORD = "password";
     public final static String COOKIE_NAME = "crawcialsession";
+    public static final int TWITTER_ERROR = 10001;
+    public static final int FACEBOOK_ERROR = 10002;
     private static final String baseUrl = "?p=";
     public final static String TWITTER = baseUrl + "twitter";
     public final static String USERMGMT = baseUrl + "usermgmt";
