@@ -6,6 +6,7 @@ package de.crawcial.twitter;
 
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Constants;
+import com.twitter.hbc.core.endpoint.Location;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.BasicClient;
@@ -16,20 +17,19 @@ import org.lightcouch.CouchDbProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class CraTwitterStreamer implements Runnable {
+public class TwitterStreamer implements Runnable {
 
-    final static private Logger logger = LoggerFactory.getLogger(CraTwitterStreamer.class);
-    private static CraTwitterStreamer ourInstance = new CraTwitterStreamer();
+    final static private Logger logger = LoggerFactory.getLogger(TwitterStreamer.class);
+    private final static String[] imgSizes = {"thumb", "small", "medium", "large"};
+    private static TwitterStreamer ourInstance = new TwitterStreamer();
     private final DatabaseService ds = DatabaseService.getInstance();
     private Authentication auth;
     private List<String> terms;
+    private List<Location> locations;
     private boolean configSet = false;
     private boolean active = false;
     private boolean running = false;
@@ -38,7 +38,7 @@ public class CraTwitterStreamer implements Runnable {
     private int threads = Runtime.getRuntime().availableProcessors();
     private Date startDate;
 
-    public static CraTwitterStreamer getInstance() {
+    public static TwitterStreamer getInstance() {
         return ourInstance;
     }
 
@@ -70,18 +70,30 @@ public class CraTwitterStreamer implements Runnable {
         return result;
     }
 
-    public void setConfig(Authentication auth, List<String> terms, boolean downloadMedia, CouchDbProperties properties) {
-        // Receive OAuth params
-        this.auth = auth;
+    public void setConfig(Authentication auth, List<String> terms, boolean downloadMedia,
+                          CouchDbProperties properties, String imgSize, boolean mediaHttps, Location l) throws IllegalArgumentException {
+        if (!downloadMedia ^ Arrays.asList(imgSizes).contains(imgSize)) {
+            // Receive OAuth params
+            this.auth = auth;
 
-        // Reset DatabaseService & set download mode
-        ds.init(downloadMedia, properties);
+            if (l != null) {
+                locations = Arrays.asList(l);
+            } else {
+                locations = null;
+            }
 
-        // Terms for filtering
-        this.terms = terms;
-        logger.info("Filtering tweets with terms {}", terms.toString());
-        lowMemory = false;
-        configSet = true;
+            // Reset DatabaseService & set download mode
+            ds.init(downloadMedia, properties, imgSize, mediaHttps);
+
+            // Terms for filtering
+            this.terms = terms;
+            logger.info("Filtering tweets with terms {}", terms.toString());
+            lowMemory = false;
+            configSet = true;
+        } else {
+            configSet = false;
+            throw new IllegalArgumentException("Invalid imgSize");
+        }
     }
 
     public void shutdown() {
@@ -106,7 +118,14 @@ public class CraTwitterStreamer implements Runnable {
             StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
             // Add tracked terms
-            endpoint.trackTerms(terms);
+            if (terms != null) {
+                endpoint.trackTerms(terms);
+            }
+
+            // Add tracked locations
+            if (locations != null) {
+                endpoint.locations(locations);
+            }
 
             // Create a new BasicClient. By default gzip is enabled.
             BasicClient client = new ClientBuilder()

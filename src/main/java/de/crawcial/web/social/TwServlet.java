@@ -3,9 +3,10 @@ package de.crawcial.web.social;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.twitter.hbc.core.endpoint.Location;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import de.crawcial.Constants;
-import de.crawcial.twitter.CraTwitterStreamer;
+import de.crawcial.twitter.TwitterStreamer;
 import de.crawcial.web.auth.AuthHelper;
 import de.crawcial.web.util.Modules;
 import de.crawcial.web.util.Tokenmanager;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -37,18 +39,18 @@ import java.util.Map;
 public class TwServlet extends HttpServlet {
 
     public static boolean isRunning() {
-        return CraTwitterStreamer.getInstance().isRunning();
+        return TwitterStreamer.getInstance().isRunning();
     }
 
     public static boolean isShuttingDown() {
-        return CraTwitterStreamer.getInstance().isRunning() && !CraTwitterStreamer.getInstance().isActive();
+        return TwitterStreamer.getInstance().isRunning() && !TwitterStreamer.getInstance().isActive();
     }
 
 
     public static String getStatus() {
-        List<String> terms = CraTwitterStreamer.getInstance().getTerms();
-        Date startTime = CraTwitterStreamer.getInstance().getStartDate();
-        long currentCnt = CraTwitterStreamer.getInstance().getResult();
+        List<String> terms = TwitterStreamer.getInstance().getTerms();
+        Date startTime = TwitterStreamer.getInstance().getStartDate();
+        long currentCnt = TwitterStreamer.getInstance().getResult();
         if (terms != null && startTime != null) {
             DateFormat df = DateFormat.getInstance();
             long runtime = System.currentTimeMillis() - startTime.getTime();
@@ -90,13 +92,13 @@ public class TwServlet extends HttpServlet {
     }
 
     public static boolean isLowMemory() {
-        return CraTwitterStreamer.getInstance().isLowMemory();
+        return TwitterStreamer.getInstance().isLowMemory();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (req.getParameter("action") != null && req.getParameter("action").equals("trends")) {
-            resp.sendRedirect(Constants.TWITTER + "&trends=" + getTrendingWorldwideBase64(req));
+        if (req.getParameter(Constants.ACTION) != null && req.getParameter(Constants.ACTION).equals("trends")) {
+            resp.sendRedirect(Constants.TWITTER + "&terms=" + getTrendingWorldwideBase64(req));
         } else {
             resp.sendRedirect(Constants.TWITTER);
         }
@@ -105,13 +107,19 @@ public class TwServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (AuthHelper.isAuthenticated(req) && req.getParameter("action") != null) {
-            CraTwitterStreamer crs = CraTwitterStreamer.getInstance();
+            TwitterStreamer crs = TwitterStreamer.getInstance();
             String actionParam = req.getParameter(Constants.ACTION);
             switch (actionParam) {
                 case "persist":
-                    if (!CraTwitterStreamer.getInstance().isRunning() && !CraTwitterStreamer.getInstance().isActive()) {
+                    if (!TwitterStreamer.getInstance().isRunning() && !TwitterStreamer.getInstance().isActive()) {
                         CouchDbProperties dbProperties = Modules.getCouchDbProperties(req.getServletContext(), Constants.TWITTER_DB);
-                        List<String> terms = req.getParameter("terms") == null ? null : Arrays.asList(req.getParameter("terms").split("\\s*,\\s*"));
+                        String termString = req.getParameter("terms");
+                        List<String> terms = null;
+                        if (termString != null) {
+                            byte[] bytes = termString.getBytes(StandardCharsets.ISO_8859_1);
+                            termString = new String(bytes, StandardCharsets.UTF_8);
+                            terms = Arrays.asList(termString.split("\\s*,\\s*"));
+                        }
                         OAuth1 oauth = null;
                         try {
                             oauth = Tokenmanager.getTwitterOAuth(req);
@@ -119,7 +127,21 @@ public class TwServlet extends HttpServlet {
                             // Macht nix
                         }
                         if (oauth != null && dbProperties != null && terms != null) {
-                            crs.setConfig(oauth, terms, Boolean.valueOf(req.getParameter("media")), dbProperties);
+                            Location l = null;
+                            if (req.getParameter("geo") != null && req.getParameter("geo").equals("true")) {
+                                String ne = req.getParameter("ne");
+                                String sw = req.getParameter("sw");
+
+                                Location.Coordinate neC = new Location.Coordinate(Float.valueOf(ne.substring(ne.indexOf(" ")
+                                        + 1, ne.indexOf(")"))), Float.valueOf(ne.substring(1, ne.indexOf(","))));
+
+                                Location.Coordinate swC = new Location.Coordinate(Float.valueOf(sw.substring(sw.indexOf(" ")
+                                        + 1, sw.indexOf(")"))), Float.valueOf(sw.substring(1, sw.indexOf(","))));
+
+                                l = new Location(swC, neC);
+                            }
+                            crs.setConfig(oauth, terms, Boolean.valueOf(req.getParameter("media")), dbProperties,
+                                    req.getParameter("imgsize"), Boolean.valueOf(req.getParameter("imgsize")), l);
                             Thread t = new Thread(crs);
                             t.setName("Master-of-desaster");
                             CouchDbProperties masterDbProperties = Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB);

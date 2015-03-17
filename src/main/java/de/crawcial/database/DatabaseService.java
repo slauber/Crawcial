@@ -2,7 +2,7 @@ package de.crawcial.database;
 
 import com.google.gson.JsonObject;
 import de.crawcial.database.util.CouchDbCloneClient;
-import de.crawcial.twitter.CraTwitterStreamer;
+import de.crawcial.twitter.TwitterStreamer;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 import org.lightcouch.DesignDocument;
@@ -30,6 +30,8 @@ public class DatabaseService {
     private Thread writeExecutorThread;
     private CouchDbProperties dbProperties;
     private int warningCnt = 0;
+    private String imgSize = "small";
+    private boolean mediaHttps = true;
 
     private DatabaseService() {
     }
@@ -54,8 +56,10 @@ public class DatabaseService {
         return downloadMedia;
     }
 
-    public synchronized void init(boolean downloadMedia, CouchDbProperties dbProperties) {
+    public synchronized void init(boolean downloadMedia, CouchDbProperties dbProperties, String imgSize, boolean mediaHttps) {
         DatabaseService.downloadMedia = downloadMedia;
+        setMediaHttps(mediaHttps);
+        setImgSize(imgSize);
         warningCnt = 0;
         this.dbProperties = dbProperties;
         CouchDbClient dbClient = new CouchDbCloneClient(dbProperties);
@@ -78,7 +82,7 @@ public class DatabaseService {
         Runtime r = Runtime.getRuntime();
         if (r.totalMemory() * 1.1 >= r.maxMemory() && r.totalMemory() / (float) r.freeMemory() > 5) {
             System.gc();
-            CraTwitterStreamer.getInstance().setLowMemory(true);
+            TwitterStreamer.getInstance().setLowMemory(true);
             downloadMedia = false;
             jsonObjectVector.add(status);
             logger.warn("Persistence disable due to mem limit");
@@ -106,5 +110,21 @@ public class DatabaseService {
         jsonObjectVector.clear();
         attachmentExecutors.clear();
         es.shutdownNow();
+    }
+
+    public String getImgSize() {
+        return imgSize;
+    }
+
+    public void setImgSize(String imgSize) {
+        this.imgSize = imgSize;
+    }
+
+    public boolean isMediaHttps() {
+        return mediaHttps;
+    }
+
+    public void setMediaHttps(boolean mediaHttps) {
+        this.mediaHttps = mediaHttps;
     }
 }
