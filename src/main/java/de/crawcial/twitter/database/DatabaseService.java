@@ -1,8 +1,8 @@
-package de.crawcial.database;
+package de.crawcial.twitter.database;
 
 import com.google.gson.JsonObject;
-import de.crawcial.database.util.CouchDbCloneClient;
 import de.crawcial.twitter.TwitterStreamer;
+import de.crawcial.util.CouchDbCloneClient;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 import org.lightcouch.DesignDocument;

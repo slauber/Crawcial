@@ -26,6 +26,8 @@
           <element id="library" level="project" name="Maven: javax.activation:activation:1.1" />
           <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.10" />
           <element id="library" level="project" name="Maven: com.google.guava:guava:18.0" />
+          <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.2.1" />
+          <element id="library" level="project" name="Maven: org.facebook4j:facebook4j-core:2.2.2" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="crawcial/web/Web" />

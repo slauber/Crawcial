@@ -1,4 +1,4 @@
-package de.crawcial.database;
+package de.crawcial.twitter.database;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

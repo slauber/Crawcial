@@ -2,8 +2,8 @@ package de.crawcial.twitter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import de.crawcial.database.util.CouchDBPropertiesSource;
-import de.crawcial.database.util.CouchDbCloneClient;
+import de.crawcial.util.CouchDBPropertiesSource;
+import de.crawcial.util.CouchDbCloneClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.lightcouch.CouchDbClient;

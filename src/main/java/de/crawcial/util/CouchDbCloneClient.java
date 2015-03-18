@@ -1,4 +1,4 @@
-package de.crawcial.database.util;
+package de.crawcial.util;
 
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;

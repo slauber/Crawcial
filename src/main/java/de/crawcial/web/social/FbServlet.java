@@ -1,10 +1,14 @@
 package de.crawcial.web.social;
 
 import de.crawcial.Constants;
+import de.crawcial.facebook.FacebookStaticLoader;
+import de.crawcial.facebook.FacebookStreamer;
 import de.crawcial.web.auth.AuthHelper;
+import de.crawcial.web.util.Modules;
 import de.crawcial.web.util.Tokenmanager;
 import facebook4j.*;
 import facebook4j.auth.AccessToken;
+import facebook4j.conf.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,19 +35,14 @@ public class FbServlet extends HttpServlet {
     private static final char[] HEX = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
-    static Facebook facebook = FacebookFactory.getSingleton();
+    static Facebook facebook;
 
     public static ResponseList<Account> getPages(HttpServletRequest req) throws IOException {
         if (AuthHelper.isAuthenticated(req)) {
+            initFacebook(req);
+
             try {
-                facebook.setOAuthAppId(Tokenmanager.getSocialToken(req).get("fbappid"), Tokenmanager.getSocialToken(req).get("fbappsecret"));
-            } catch (IllegalStateException e) {
-                // Macht nix
-            } catch (IOException e) {
-                return null;
-            }
-            facebook.setOAuthAccessToken(Tokenmanager.getFacebookAccessToken(req));
-            try {
+                facebook.setOAuthAccessToken(Tokenmanager.getFacebookAccessToken(req));
                 return facebook.getAccounts();
             } catch (FacebookException | IllegalStateException e) {
                 return null;
@@ -85,12 +84,25 @@ public class FbServlet extends HttpServlet {
         return result;
     }
 
-    private void initFacebook(HttpServletRequest req) {
+    private static Facebook initFacebook(HttpServletRequest req) {
+        if (facebook == null) {
+            ConfigurationBuilder cb = new ConfigurationBuilder();
+            cb.setJSONStoreEnabled(true);
+            FacebookFactory ff = new FacebookFactory(cb.build());
+            facebook = ff.getInstance();
+        }
         try {
             facebook.setOAuthAppId(Tokenmanager.getSocialToken(req).get("fbappid"), Tokenmanager.getSocialToken(req).get("fbappsecret"));
         } catch (IllegalStateException | IOException e) {
             // macht nix
         }
+        return facebook;
+    }
+
+    public void callStaticLoader(HttpServletRequest req, String pageId) throws FacebookException {
+//        initFacebook(req);
+        FacebookStaticLoader.getInstance().setFbVars(facebook, Tokenmanager.getFacebookAccessToken(req));
+        FacebookStaticLoader.getInstance().downloadPage(pageId, Modules.getCouchDbProperties(getServletContext(), Constants.FACEBOOK_DB));
     }
 
     @Override
@@ -156,6 +168,12 @@ public class FbServlet extends HttpServlet {
                         resp.getWriter().println(e.getErrorMessage());
                     }
                     break;
+                case "staticLoader":
+                    try {
+                        callStaticLoader(req, "crawcial");
+                    } catch (FacebookException e) {
+                        e.printStackTrace();
+                    }
             }
         } else {
             // 1. get received JSON data from request
@@ -164,7 +182,8 @@ public class FbServlet extends HttpServlet {
             String json = br.readLine();
             if (verifySignature(json, signature, socialToken.get("fbappsecret"))) {
                 resp.setStatus(200);
-                logger.info(json);
+                FacebookStreamer.setFbVars(initFacebook(req), Tokenmanager.getFacebookAccessToken(req));
+                FacebookStreamer.parseChange(json, Modules.getCouchDbProperties(getServletContext(), Constants.FACEBOOK_DB));
             } else {
                 resp.setStatus(403);
             }

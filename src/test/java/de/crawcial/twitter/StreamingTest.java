@@ -1,6 +1,6 @@
 package de.crawcial.twitter;
 
-import de.crawcial.database.util.CouchDbCloneClient;
+import de.crawcial.util.CouchDbCloneClient;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import org.lightcouch.CouchDbClient;
