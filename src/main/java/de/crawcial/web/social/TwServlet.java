@@ -59,7 +59,7 @@ public class TwServlet extends HttpServlet {
             return "Filtering tweets by terms: " + terms.toString() + " or Location: " + locations + " - Started at: " + df.format(startTime) +
                     "(active for " + runtime / 1000 + " seconds) - Current item count " + currentCnt;
         }
-        return "CraTwitter initializing...";
+        return "Crawcial for Twitter initializing...";
     }
 
     public static String getTrendingWorldwideBase64(HttpServletRequest req) {
