@@ -58,6 +58,10 @@ public class TwitterStreamer implements Runnable {
         return terms;
     }
 
+    public List<Location> getLocations() {
+        return locations;
+    }
+
     public boolean isRunning() {
         return running;
     }

@@ -52,10 +52,11 @@ public class TwServlet extends HttpServlet {
         List<String> terms = TwitterStreamer.getInstance().getTerms();
         Date startTime = TwitterStreamer.getInstance().getStartDate();
         long currentCnt = TwitterStreamer.getInstance().getResult();
+        List<Location> locations = TwitterStreamer.getInstance().getLocations();
         if (terms != null && startTime != null) {
             DateFormat df = DateFormat.getInstance();
             long runtime = System.currentTimeMillis() - startTime.getTime();
-            return "Filtering tweets by terms: " + terms.toString() + " - Started at: " + df.format(startTime) +
+            return "Filtering tweets by terms: " + terms.toString() + " or Location: " + locations + " - Started at: " + df.format(startTime) +
                     "(active for " + runtime / 1000 + " seconds) - Current item count " + currentCnt;
         }
         return "CraTwitter initializing...";
