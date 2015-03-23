@@ -5,7 +5,8 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Crawcial</title>
+    <title><%=Constants.PRODUCTNAME%>
+    </title>
     <link rel="stylesheet" href="style.css" type="text/css" media="screen"/>
     <link href="img/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="img/apple_touch_icon.png" rel="apple-touch-icon-precomposed">
@@ -13,7 +14,8 @@
 <body>
 <div id="container">
     <header>
-        <a href="<%=Constants.HOME%>"><h1>Crawcial</h1></a>
+        <a href="<%=Constants.HOME%>"><h1><%=Constants.PRODUCTNAME%>
+        </h1></a>
     </header>
 
     <jsp:include page="WEB-INF/include/nav.jsp"/>
@@ -24,21 +26,14 @@
             <jsp:include page="WEB-INF/include/setup.jsp"/>
             <%
             } else {
-                if (AuthHelper.isAuthenticated(request)) {
-            %>
-            <% if (request.getParameter("p") != null) {
-                String p = "WEB-INF/include/" + request.getParameter("p") + ".jsp" +
-                        (request.getParameter("e") != null ? "?e=" + request.getParameter("e") : "");
+                if (AuthHelper.isAuthenticated(request) && request.getParameter("p") != null) {
+                    String p = "WEB-INF/include/" + request.getParameter("p") + ".jsp" +
+                            (request.getParameter("e") != null ? "?e=" + request.getParameter("e") : "");
             %>
             <jsp:include page="<%=p%>"/>
-
             <%
             } else {
             %>
-            <jsp:include page="WEB-INF/include/login.jsp"/>
-            <%
-                }
-            } else {%>
             <jsp:include page="WEB-INF/include/login.jsp"/>
             <%
                     }

@@ -3,9 +3,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <% if (!AuthHelper.isAuthenticated(request)) {%>
-<div class="crawcial-login-container" style="text-align: center; vertical-align: middle;width: 340px;margin: 0 auto;">
+<div class="crawcial-login-container" style="text-align: center; vertical-align: middle;width: 340px;">
 
-    <img src="img/crawcial.png" width="256" height="256" alt="Crawcial">
+    <img class="uk-margin-bottom" src="img/crawcial.png" width="256" height="256" alt="Crawcial">
 
     <form class="crawcial-login-form" action="auth" method="post">
 

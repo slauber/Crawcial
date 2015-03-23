@@ -17,6 +17,7 @@ public class Constants {
     public final static String SIGNOUT = "signout";
     public final static String USER = "user";
     public final static String PASSWORD = "password";
+    public final static String PRODUCTNAME = "Crawcial";
     public final static String COOKIE_NAME = "crawcialsession";
     public static final int TWITTER_ERROR = 10001;
     public static final int FACEBOOK_ERROR = 10002;

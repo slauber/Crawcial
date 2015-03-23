@@ -23,10 +23,18 @@
     }
     ResponseList<Account> accounts = FbServlet.getPages(request);
     if (accounts != null) {
-%><p>Click to install crawcial on a page</p><%
+%><p>Click to install Crawcial on a page</p><%
     for (Account a : accounts) {%>
 <a href="facebook?action=enablePage&pageid=<%=a.getId()%>"><%=a.getName()%> - ID: <%=a.getId()%>
-</a><br>
+</a>
+
+<form action="facebook" method="post">
+    <button>Download posts for <%=a.getName()%>
+    </button>
+    <input type="hidden" name="action" value="staticLoader">
+    <input type="hidden" name="pageid" value="<%=a.getName()%>">
+</form>
+<br>
 <%
     }%>
 <div style="text-align: center; vertical-align: middle;width: 340px;">

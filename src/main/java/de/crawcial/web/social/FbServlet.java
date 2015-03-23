@@ -42,7 +42,8 @@ public class FbServlet extends HttpServlet {
             initFacebook(req);
 
             try {
-                facebook.setOAuthAccessToken(Tokenmanager.getFacebookAccessToken(req));
+                AccessToken at = Tokenmanager.getFacebookAccessToken(req);
+                facebook.setOAuthAccessToken(at);
                 return facebook.getAccounts();
             } catch (FacebookException | IllegalStateException e) {
                 return null;
@@ -100,7 +101,6 @@ public class FbServlet extends HttpServlet {
     }
 
     public void callStaticLoader(HttpServletRequest req, String pageId) throws FacebookException {
-//        initFacebook(req);
         FacebookStaticLoader.getInstance().setFbVars(facebook, Tokenmanager.getFacebookAccessToken(req));
         FacebookStaticLoader.getInstance().downloadPage(pageId, Modules.getCouchDbProperties(getServletContext(), Constants.FACEBOOK_DB));
     }
@@ -169,11 +169,14 @@ public class FbServlet extends HttpServlet {
                     }
                     break;
                 case "staticLoader":
-                    try {
-                        callStaticLoader(req, "crawcial");
-                    } catch (FacebookException e) {
-                        e.printStackTrace();
+                    if (req.getParameter("pageid") != null) {
+                        try {
+                            callStaticLoader(req, req.getParameter("pageid"));
+                        } catch (FacebookException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    break;
             }
         } else {
             // 1. get received JSON data from request
@@ -182,6 +185,7 @@ public class FbServlet extends HttpServlet {
             String json = br.readLine();
             if (verifySignature(json, signature, socialToken.get("fbappsecret"))) {
                 resp.setStatus(200);
+                log(json);
                 FacebookStreamer.setFbVars(initFacebook(req), Tokenmanager.getFacebookAccessToken(req));
                 FacebookStreamer.parseChange(json, Modules.getCouchDbProperties(getServletContext(), Constants.FACEBOOK_DB));
             } else {

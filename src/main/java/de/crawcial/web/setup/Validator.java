@@ -19,7 +19,7 @@ public class Validator {
     public final static int OK = 0;
     public final static int NO_DATABASE_CONNECTION = 1;
     public final static int NO_CONFIG_FILE = 2;
-    public final static int NO_VALID_CONFIG = 3;// Path for our config file
+    public final static int NO_VALID_CONFIG = 3;
 
 
     // Returns information about the configuration state
