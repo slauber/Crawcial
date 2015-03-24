@@ -1,0 +1,5 @@
+*.keystore
+/*.log
+/.idea/libraries/**
+/target
+/out
