@@ -1,7 +1,4 @@
-# Baseimage by Dmytro Aleksandrov
-# https://raw.githubusercontent.com/dockerfile/java/master/oracle-java8/Dockerfile
-# --------------------------------------------------------------------------------
-FROM dockerfile/java:oracle-java8
+FROM java:8-jdk
 
 MAINTAINER Sebastian Lauber <mail@crawcial.de>
 
