@@ -32,7 +32,7 @@
     <button>Download posts for <%=a.getName()%>
     </button>
     <input type="hidden" name="action" value="staticLoader">
-    <input type="hidden" name="pageid" value="<%=a.getName()%>">
+    <input type="hidden" name="pageid" value="<%=a.getId()%>">
 </form>
 <br>
 <%

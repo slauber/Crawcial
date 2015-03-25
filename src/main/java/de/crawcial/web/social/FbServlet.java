@@ -172,6 +172,7 @@ public class FbServlet extends HttpServlet {
                     if (req.getParameter("pageid") != null) {
                         try {
                             callStaticLoader(req, req.getParameter("pageid"));
+                            resp.getWriter().println("Started downloading content of Facebook Page ID: " + req.getParameter("pageid"));
                         } catch (FacebookException e) {
                             e.printStackTrace();
                         }
