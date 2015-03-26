@@ -94,7 +94,7 @@ public class FbServlet extends HttpServlet {
         }
         try {
             facebook.setOAuthAppId(Tokenmanager.getSocialToken(req).get("fbappid"), Tokenmanager.getSocialToken(req).get("fbappsecret"));
-        } catch (IllegalStateException | IOException e) {
+        } catch (IllegalStateException | IOException | NullPointerException e) {
             // macht nix
         }
         return facebook;

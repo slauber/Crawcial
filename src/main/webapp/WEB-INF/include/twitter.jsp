@@ -164,8 +164,8 @@
 </form>
 <% }
 } else {
-%><strong>Crawcial for Twitter is not ready. Please check your <a href="<%=Constants.CONFIGURATION%>">tokens</a> and <a
-        href="<%=Constants.LOGIN%>">twitter login</a>.</strong>
+%><p style="color: crimson;font-weight: bold">Crawcial for Twitter is not ready. Please check your <a
+        href="<%=Constants.CONFIGURATION%>">token configuration</a>.</p>
 <%
         }
     }

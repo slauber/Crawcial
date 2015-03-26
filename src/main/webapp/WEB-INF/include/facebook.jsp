@@ -3,7 +3,7 @@
 <%@ page import="facebook4j.Account" %>
 <%@ page import="facebook4j.ResponseList" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>
-<h1>Facebook pages</h1>
+<h1>Crawcial for Facebook</h1>
 <% if (AuthHelper.isAuthenticated(request)) {
     String fbtoken = null;
     Cookie[] c = request.getCookies();

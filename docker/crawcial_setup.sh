@@ -32,15 +32,18 @@ if [ "$#" -eq 5 ]; then
 	read -s password
 	echo "Confirm CouchDB administrator password (will not be shown)"
 	read -s password_conf
-	echo "Enter a Docker container name or press [ENTER] to use default (couchdb)"
+	echo "Enter a Docker container name for CouchDB or press [ENTER] to use default (couchdb)"
 	read customname
 	[ ! -z "$customname" ] && name="$customname" || name="couchdb"
+	echo "Enter a Docker container name for Crawcial or press [ENTER] to use default (crawcial)"
+	read customcraname
+	[ ! -z "$customcraname" ] && craname="$customcraname" || craname="crawcial"
 	echo "Enter an avaiable TCP port for https access to CouchDB or press [ENTER] to use default (6984)"
 	read customport
 	[ ! -z "$customport" ] && port="$customport" || port="6984"
 	echo "Enter an avaiable TCP port for https access to Crawcial or press [ENTER] to use default (443)"
 	read customcraport
-	[ ! -z "$customcraport" ] && port="$customcraport" || port="443"
+	[ ! -z "$customcraport" ] && craport="$customcraport" || craport="443"
 
 fi
 ## Check for matching passwords
