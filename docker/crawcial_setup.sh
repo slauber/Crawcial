@@ -9,10 +9,11 @@ craimgtag=slauber/crawcial
 if [[ $EUID -ne 0 ]]; then echo "This script must be run as root" 1>&2;exit 1;fi
 command -v docker >/dev/null 2>&1 || { echo >&2 "This script requires docker. Please install it first."; exit 1; }
 
-if [ "$#" -eq 5 ]; then
+if [ "$#" -eq 6 ]; then
 	## Non-interactive - 6 Params: dbuser dbpassword dbcontainername dbport crawcialcontainername crawcialport
 	user="$1"
 	password="$2"
+	password_conf="$2"
 	name="$3"
 	port="$4"
 	craname="$5"
@@ -56,7 +57,7 @@ if [ "$password_conf" == "$password" ]; then
     docker run -d -p "$port":6984 --name="$name" "$imgtag"
 	echo
 	echo "**** Starting Crawcial container... ****"
-	docker run -d -p "$craport":8443 --link="$name":"$name" --name="$craname" "$craimgtag"
+	docker run -d -p "$craport":8443 --link="$name":"couchdb" --name="$craname" "$craimgtag"
 	
 	## Set credentials and pass them to Crawcial
 	echo
