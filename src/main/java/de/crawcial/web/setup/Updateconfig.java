@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -45,6 +46,7 @@ public class Updateconfig extends HttpServlet {
                 // Verify, whether valid connection information are in place
                 int currentCode = Validator.isDbConfigured(getServletContext());
                 int prevCode = Integer.valueOf(req.getParameter("code"));
+                Map<String, String[]> params = req.getParameterMap();
 
                 // Only if provided reason and current system state match, do the code
                 if (currentCode != 0 && currentCode == prevCode) {
@@ -124,7 +126,7 @@ public class Updateconfig extends HttpServlet {
                 }
             } catch (NumberFormatException e) {
                 throwError(resp, 1001);
-            } catch (CouchDbException e) {
+            } catch (CouchDbException | IllegalArgumentException e) {
                 throwError(resp, 1003);
             }
         }
