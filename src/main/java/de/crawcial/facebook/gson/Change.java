@@ -1,4 +1,3 @@
-
 package de.crawcial.facebook.gson;
 
 import com.google.gson.annotations.Expose;

@@ -16,7 +16,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Sebastian Lauber on 27.02.15.
+ * This singleton class handles all database activities of Crawcial for Twitter.
+ *
+ * @author Sebastian Lauber
  */
 public class DatabaseService {
     private static final DatabaseService ourInstance = new DatabaseService();
@@ -36,30 +38,61 @@ public class DatabaseService {
     private DatabaseService() {
     }
 
+    /**
+     * Returns the Crawcial for Twitter DatabaseService singleton.
+     *
+     * @return Crawcial for Twitter DatabaseService singleton
+     */
     public static DatabaseService getInstance() {
         return ourInstance;
     }
 
+    /**
+     * Returns the current database connection properties.
+     *
+     * @return current CouchDB connection properties
+     */
     public CouchDbProperties getDbProperties() {
         return dbProperties;
     }
 
+    /**
+     * This method must be called, if a message from Twitter does not contain a valid Tweet.
+     */
     public synchronized void increaseWarnings() {
         ++warningCnt;
     }
 
+    /**
+     * Returns the warning count, that indicates the number of warning messages received from Twitter.
+     *
+     * @return warning count
+     */
     public synchronized int getWarningCnt() {
         return warningCnt;
     }
 
+    /**
+     * Returns true, if the media downloader is enabled.
+     *
+     * @return true, if the media downloader is enabled
+     */
     public boolean isDownloadMedia() {
         return downloadMedia;
     }
 
+    /**
+     * Configures the DatabaseService singleton, must be called before the crawling process starts.
+     *
+     * @param downloadMedia true, if media downloader enabled, false to disable media downloads
+     * @param dbProperties  CouchDB properties for the Crawcial Twitter Database
+     * @param imgSize       requested image size (thumb, small, medium, large)
+     * @param mediaHttps    true if https should be used for media downloads
+     */
     public synchronized void init(boolean downloadMedia, CouchDbProperties dbProperties, String imgSize, boolean mediaHttps) {
         DatabaseService.downloadMedia = downloadMedia;
-        setMediaHttps(mediaHttps);
-        setImgSize(imgSize);
+        this.mediaHttps = mediaHttps;
+        this.imgSize = imgSize;
         warningCnt = 0;
         this.dbProperties = dbProperties;
         CouchDbClient dbClient = new CouchDbCloneClient(dbProperties);
@@ -78,6 +111,11 @@ public class DatabaseService {
         writeExecutorThread.start();
     }
 
+    /**
+     * Triggers an attachment download of the status.
+     *
+     * @param status Tweet for attachment download
+     */
     void loadAttachment(JsonObject status) {
         Runtime r = Runtime.getRuntime();
         if (r.totalMemory() * 1.1 >= r.maxMemory() && r.totalMemory() / (float) r.freeMemory() > 5) {
@@ -91,10 +129,20 @@ public class DatabaseService {
         }
     }
 
+    /**
+     * Returns the current outgoing vector to the database.
+     *
+     * @return outgoing JSON vector
+     */
     public Vector<JsonObject> getJsonObjectVector() {
         return jsonObjectVector;
     }
 
+    /**
+     * Initiates a proper shutdown.
+     *
+     * @throws InterruptedException if interrupted
+     */
     public void shutdown() throws InterruptedException {
         if (es != null) {
             es.shutdown();
@@ -106,25 +154,30 @@ public class DatabaseService {
         writeExecutorThread.join();
     }
 
+    /**
+     * Forces a shutdown (clears queues and shuts down all workers).
+     */
     public synchronized void forceShutdown() {
         jsonObjectVector.clear();
         attachmentExecutors.clear();
         es.shutdownNow();
     }
 
+    /**
+     * Returns the configured image download size.
+     *
+     * @return current configured image download size (thumb, small, medium, large)
+     */
     public String getImgSize() {
         return imgSize;
     }
 
-    public void setImgSize(String imgSize) {
-        this.imgSize = imgSize;
-    }
-
+    /**
+     * Returns true, if https should be used for media downloads.
+     *
+     * @return true, if https should be used for media downloads
+     */
     public boolean isMediaHttps() {
         return mediaHttps;
-    }
-
-    public void setMediaHttps(boolean mediaHttps) {
-        this.mediaHttps = mediaHttps;
     }
 }

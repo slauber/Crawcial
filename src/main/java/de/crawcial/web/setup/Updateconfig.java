@@ -16,18 +16,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by Sebastian Lauber on 09.03.15.
+ * Database configuration servlet, provides setup API for Crawcial.
+ *
+ * @author Sebastian Lauber
  */
 public class Updateconfig extends HttpServlet {
-    private final String DOCUSERID = "org.couchdb.user:crawcial_control";
-    private final String DOCUSERNAME = "crawcial_control";
-    private final String DOCUSERGROUP = DOCUSERNAME;
-    private final String DOCCONFIGDB = DOCUSERNAME;
-
+    /**
+     * Checks for the database configuration and redirects to the homepage of Crawcial.
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (Validator.isDbConfigured(req.getServletContext()) == 0) {
@@ -37,16 +41,26 @@ public class Updateconfig extends HttpServlet {
         }
     }
 
+    /**
+     * Handles the setup process, checks for existing configuration and errors.
+     * <p>request parameter: action, host, protocol, user, password, code</p>
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter("action") != null && req.getParameter("action").equals("update")) {
+            @SuppressWarnings("UnusedAssignment")
             CouchDbClient dbClient = null;
+            @SuppressWarnings("UnusedAssignment")
             JsonObject userJs = null;
             try {
                 // Verify, whether valid connection information are in place
                 int currentCode = Validator.isDbConfigured(getServletContext());
                 int prevCode = Integer.valueOf(req.getParameter("code"));
-                Map<String, String[]> params = req.getParameterMap();
 
                 // Only if provided reason and current system state match, do the code
                 if (currentCode != 0 && currentCode == prevCode) {
@@ -62,20 +76,20 @@ public class Updateconfig extends HttpServlet {
 
                     // Create a new user with random password
                     userJs = new JsonObject();
-                    userJs.addProperty("_id", DOCUSERID);
+                    userJs.addProperty("_id", Constants.DOCUSERID);
                     userJs.addProperty("type", "user");
-                    userJs.addProperty("name", DOCUSERNAME);
+                    userJs.addProperty("name", Constants.DOCUSERNAME);
                     String rndPassword = new BigInteger(130, new SecureRandom()).toString(32);
                     userJs.addProperty("password", rndPassword);
                     JsonArray roles = new JsonArray();
-                    roles.add(new JsonPrimitive(DOCUSERGROUP));
+                    roles.add(new JsonPrimitive(Constants.DOCUSERGROUP));
                     userJs.add("roles", roles);
 
                     try {
                         dbClient.save(userJs);
                     } catch (CouchDbException e) {
                         if (e.getMessage().equals("Conflict")) {
-                            JsonObject o = dbClient.find(JsonObject.class, DOCUSERID);
+                            JsonObject o = dbClient.find(JsonObject.class, Constants.DOCUSERID);
                             dbClient.remove(o);
                             dbClient.save(userJs);
                         } else {
@@ -95,7 +109,7 @@ public class Updateconfig extends HttpServlet {
 
                     // Create config db and facebook / twitter db
                     dbClient.shutdown();
-                    dbClient = new CouchDbClient(DOCCONFIGDB, true, protocol, host, port, user, password);
+                    dbClient = new CouchDbClient(Constants.DOCCONFIGDB, true, protocol, host, port, user, password);
                     dbClient.save(securityJs);
                     DesignDocument designDoc = dbClient.design().getFromDesk("crawcial");
                     dbClient.design().synchronizeWithDb(designDoc);
@@ -114,7 +128,7 @@ public class Updateconfig extends HttpServlet {
                     p.put("dbprotocol", protocol);
                     p.put("dbhost", host);
                     p.put("dbport", String.valueOf(port));
-                    p.put("dbusername", DOCUSERNAME);
+                    p.put("dbusername", Constants.DOCUSERNAME);
                     p.put("dbpassword", rndPassword);
 
                     String path = getServletContext().getRealPath("/WEB-INF");
@@ -132,6 +146,13 @@ public class Updateconfig extends HttpServlet {
         }
     }
 
+    /**
+     * Sends parametrized redirect in case of an occured error.
+     *
+     * @param resp the http response
+     * @param code error code
+     * @throws IOException if an error occurred during access
+     */
     private void throwError(HttpServletResponse resp, int code) throws IOException {
         resp.sendRedirect("/" + Constants.SETUP + "&e=" + code);
         resp.getWriter().println("Could not update config - Code " + code);

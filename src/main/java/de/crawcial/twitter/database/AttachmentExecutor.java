@@ -16,7 +16,9 @@ import java.util.Base64;
 import java.util.Vector;
 
 /**
- * Created by Sebastian Lauber on 28.02.15.
+ * Objects of this class are used to download attachments from the Twitter CDN and queue them on the database vector.
+ *
+ * @author Sebastian Lauber
  */
 class AttachmentExecutor implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(AttachmentExecutor.class);
@@ -24,6 +26,12 @@ class AttachmentExecutor implements Runnable {
     private final JsonObject json;
     private final Vector<JsonObject> target;
 
+    /**
+     * This constructor is used to set the Tweet JSON and the target vector.
+     *
+     * @param json   Tweet JSON
+     * @param target database target vector
+     */
     public AttachmentExecutor(JsonObject json, Vector<JsonObject> target) {
         this.json = json;
         this.target = target;

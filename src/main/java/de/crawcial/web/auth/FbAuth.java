@@ -19,12 +19,23 @@ import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.Map;
 
+/**
+ * This servlet handles the Facebook login process.
+ *
+ * @author Sebastian Lauber
+ */
 public class FbAuth extends HttpServlet {
     private static String FB_APP_ID;
     private static String FB_APP_SECRET;
     private static String REDIRECT_URI;
     private static String accessToken = "";
 
+    /**
+     * Loads Facebook OAuth tokens from the database.
+     *
+     * @param req the http request
+     * @throws IOException if an error occurred during access
+     */
     private void loadProperties(HttpServletRequest req) throws IOException {
         StringBuilder callbackURL = new StringBuilder(req.getRequestURL().toString());
         int index = callbackURL.lastIndexOf("/");
@@ -36,6 +47,14 @@ public class FbAuth extends HttpServlet {
     }
 
 
+    /**
+     * This method checks the configuration status and redirects to the configuration page, if necessary.
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         loadProperties(req);
@@ -46,6 +65,15 @@ public class FbAuth extends HttpServlet {
         }
     }
 
+    /**
+     * This method handles the Facebook OAuth callback and sets the fbtoken cookie.
+     * <p>request parameter: code</p>
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         loadProperties(req);
@@ -63,7 +91,12 @@ public class FbAuth extends HttpServlet {
         }
     }
 
-    String getFbAuthUrl() {
+    /**
+     * Returns the Facebook authentication URL.
+     *
+     * @return Facebook authentication url string
+     */
+    private String getFbAuthUrl() {
         String fbLoginUrl = "";
         try {
             fbLoginUrl = "http://www.facebook.com/dialog/oauth?" + "client_id="
@@ -76,7 +109,13 @@ public class FbAuth extends HttpServlet {
         return fbLoginUrl;
     }
 
-    String getFbGraphUrl(String code) {
+    /**
+     * Returns the Facebook Graph API url string in order to exchange the code for a token.
+     *
+     * @param code OAuth authentication code
+     * @return Facebook Graph API URL string for code/token exchange
+     */
+    private String getFbGraphUrl(String code) {
         String fbGraphUrl = "";
         try {
             fbGraphUrl = "https://graph.facebook.com/oauth/access_token?"
@@ -89,7 +128,14 @@ public class FbAuth extends HttpServlet {
         return fbGraphUrl;
     }
 
-    private String getAccessToken(String code) {
+    /**
+     * Returns an Facebook OAuth2 access token.
+     *
+     * @param code the callback code
+     * @return Facebook OAuth2 access token string
+     * @throws RuntimeException if connection with Facebook throws errors
+     */
+    private String getAccessToken(String code) throws RuntimeException {
         if ("".equals(accessToken)) {
             URL fbGraphURL;
             try {

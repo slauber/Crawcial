@@ -1,7 +1,8 @@
 package de.crawcial.web.auth;
 
 import de.crawcial.Constants;
-import de.crawcial.web.util.Modules;
+import de.crawcial.util.CrawcialUtils;
+import de.crawcial.web.util.CrawcialWebUtils;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 import org.lightcouch.NoDocumentException;
@@ -15,34 +16,50 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
 /**
- * Created by Sebastian Lauber on 11.03.2015.
+ * This servlet contains user management activities.
+ *
+ * @author Sebastian Lauber
  */
+@SuppressWarnings("ConstantConditions")
 public class UserServlet extends HttpServlet {
+    /**
+     * Returns true, if no user is registered and Crawcial is in Admin Party Mode.
+     *
+     * @param sc the servlet context
+     * @return true, if no user is registered
+     */
     public static boolean isAdminParty(ServletContext sc) {
         try {
-            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
+            CouchDbClient dbClient = new CouchDbClient(CrawcialWebUtils.getCouchDbProperties(sc, Constants.CONFIGDB));
             return dbClient.view("crawcial/allUsers").query(CrawcialUser.class).size() == 0;
         } catch (Exception e) {
             return false;
         }
     }
 
+    /**
+     * Returns true, if the given session cookie string is valid.
+     *
+     * @param sc the servlet context
+     * @param s  session cookie string
+     * @return true, if the given session cookie string is valid
+     * @throws IOException if an error occurred during access
+     */
     protected static boolean verifySession(ServletContext sc, String s) throws IOException {
         if (s == null || !s.contains("|")) {
             return false;
         }
         String user = s.substring(0, s.indexOf("|"));
-        if (Modules.getCouchDbProperties(sc, Constants.CONFIGDB) != null) {
+        if (CrawcialWebUtils.getCouchDbProperties(sc, Constants.CONFIGDB) != null) {
             CouchDbClient dbClient;
             try {
-                dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
+                dbClient = new CouchDbClient(CrawcialWebUtils.getCouchDbProperties(sc, Constants.CONFIGDB));
             } catch (CouchDbException e) {
                 return false;
             }
@@ -58,8 +75,17 @@ public class UserServlet extends HttpServlet {
 
     }
 
+    /**
+     * Verifies the given credentials and updates the session in the database. Returns a session cookie.
+     *
+     * @param sc       the servlet context
+     * @param username username
+     * @param password password
+     * @return new session cookie
+     * @throws IOException if an error occurred during access
+     */
     protected static Cookie verifyCredentials(ServletContext sc, String username, String password) throws IOException {
-        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
+        CouchDbClient dbClient = new CouchDbClient(CrawcialWebUtils.getCouchDbProperties(sc, Constants.CONFIGDB));
         try {
             CrawcialUser u = dbClient.find(CrawcialUser.class, Constants.USER_PREFIX + username);
             if (validatePassword(password, u.getPasshash())) {
@@ -73,8 +99,18 @@ public class UserServlet extends HttpServlet {
         return null;
     }
 
+    /**
+     * Updates the session cookie in the database.
+     *
+     * @param sc       the servlet context
+     * @param username username
+     * @return new session cookie
+     * @throws InvalidKeySpecException  if an error occurred during access
+     * @throws NoSuchAlgorithmException if an error occurred during access
+     * @throws IOException              if an error occurred during access
+     */
     protected static Cookie setSessionCookie(ServletContext sc, String username) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
-        CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
+        CouchDbClient dbClient = new CouchDbClient(CrawcialWebUtils.getCouchDbProperties(sc, Constants.CONFIGDB));
         try {
             CrawcialUser u = dbClient.find(CrawcialUser.class, Constants.USER_PREFIX + username);
             Cookie sessionCookie = new Cookie(Constants.COOKIE_NAME, username + "|" +
@@ -88,6 +124,14 @@ public class UserServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Hashes the given password in order to protect the original data.
+     *
+     * @param password plain text password
+     * @return hashed password
+     * @throws NoSuchAlgorithmException if an error occurred during access
+     * @throws InvalidKeySpecException  if an error occurred during access
+     */
     private static String generateStrongPasswordHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         final int iterations = 1000;
         char[] chars = password.toCharArray();
@@ -96,14 +140,20 @@ public class UserServlet extends HttpServlet {
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] hash = skf.generateSecret(spec).getEncoded();
-        return iterations + ":" + toHex(salt) + ":" + toHex(hash);
+        return iterations + ":" + CrawcialUtils.toHex(salt) + ":" + CrawcialUtils.toHex(hash);
     }
 
+    /**
+     * Returns a list of all registered Crawcial users.
+     *
+     * @param sc the servlet context
+     * @return list of all registered Crawcial users
+     */
     public static List<CrawcialUser> getUserlist(ServletContext sc) {
-        if (Modules.getCouchDbProperties(sc, Constants.CONFIGDB) != null) {
+        if (CrawcialWebUtils.getCouchDbProperties(sc, Constants.CONFIGDB) != null) {
             CouchDbClient dbClient;
             try {
-                dbClient = new CouchDbClient(Modules.getCouchDbProperties(sc, Constants.CONFIGDB));
+                dbClient = new CouchDbClient(CrawcialWebUtils.getCouchDbProperties(sc, Constants.CONFIGDB));
                 List<CrawcialUser> dbUserList = dbClient.view("crawcial/allUsers").includeDocs(true).query(CrawcialUser.class);
                 if (dbUserList.size() == 0) {
                     return null;
@@ -119,6 +169,12 @@ public class UserServlet extends HttpServlet {
         return null;
     }
 
+    /**
+     * Returns a random salt to harden the password hash.
+     *
+     * @return random salt to harden the password hash
+     * @throws NoSuchAlgorithmException if an error occurred during access
+     */
     private static String getSalt() throws NoSuchAlgorithmException {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt = new byte[16];
@@ -126,22 +182,20 @@ public class UserServlet extends HttpServlet {
         return new String(salt);
     }
 
-    private static String toHex(byte[] array) throws NoSuchAlgorithmException {
-        BigInteger bi = new BigInteger(1, array);
-        String hex = bi.toString(16);
-        int paddingLength = (array.length * 2) - hex.length();
-        if (paddingLength > 0) {
-            return String.format("%0" + paddingLength + "d", 0) + hex;
-        } else {
-            return hex;
-        }
-    }
-
+    /**
+     * Method for validating a plaintext password to a hashed password.
+     *
+     * @param originalPassword plaintext password
+     * @param storedPassword   hashed password
+     * @return true, if plaintext password hash matches the hashed password
+     * @throws NoSuchAlgorithmException if an error occurred during access
+     * @throws InvalidKeySpecException  if an error occurred during access
+     */
     private static boolean validatePassword(String originalPassword, String storedPassword) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String[] parts = storedPassword.split(":");
         int iterations = Integer.parseInt(parts[0]);
-        byte[] salt = fromHex(parts[1]);
-        byte[] hash = fromHex(parts[2]);
+        byte[] salt = CrawcialUtils.fromHex(parts[1]);
+        byte[] hash = CrawcialUtils.fromHex(parts[2]);
 
         PBEKeySpec spec = new PBEKeySpec(originalPassword.toCharArray(), salt, iterations, hash.length * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -154,18 +208,20 @@ public class UserServlet extends HttpServlet {
         return diff == 0;
     }
 
-    private static byte[] fromHex(String hex) throws NoSuchAlgorithmException {
-        byte[] bytes = new byte[hex.length() / 2];
-        for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
-        }
-        return bytes;
-    }
 
+    /**
+     * Handles the user management API of Crawcial, adds or removes user.
+     * <p>request parameters: action, user, password, delusername</p>
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (AuthHelper.isAuthenticated(req) && req.getParameter(Constants.ACTION) != null) {
-            CouchDbClient dbClient = new CouchDbClient(Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB));
+            CouchDbClient dbClient = new CouchDbClient(CrawcialWebUtils.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB));
             CrawcialUser crawcialUser;
 
             if (verifySession(req.getServletContext(), AuthHelper.getSessionCookie(req)) && req.getParameter(Constants.ACTION).equals("deluser")) {

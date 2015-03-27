@@ -1,27 +1,27 @@
 package de.crawcial.twitter;
 
-import de.crawcial.util.CouchDbCloneClient;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
-import org.lightcouch.CouchDbClient;
-import org.lightcouch.CouchDbProperties;
 
 /**
- * Created by Sebastian Lauber on 20.02.15.
+ * Test for streaming validation.
+ *
+ * @author Sebastian Lauber
+ * @deprecated
  */
-
+@SuppressWarnings("unused")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class StreamingTest {
-    private final String[] terms = {"Coulson", "BroomWar", "#QuandoCrescerEu", "photography", "#AlisScared",
-            "DearMe", "#5ONTHEWALL", "#EndofEzria", "#LoUnicoQueNecesitoEs", "rip", "landscape", "beer", "party"};
-
+    @SuppressWarnings({"MismatchedReadAndWriteOfArray", "unused"})
+    private final String[] terms = {"this", "is", "a", "test"};
+/*
     void removeDb(CouchDbProperties properties) {
         // Trash old database
         CouchDbClient dbClient = new CouchDbCloneClient(properties);
         dbClient.context().deleteDB(properties.getDbName(), "delete database");
         dbClient.shutdown();
     }
-/*
+
     void testStreaming(long millis, String[] terms, boolean downloadMedia, String name) throws TwitterException, IOException {
         // Setup database properties from template and adapt to fit
         CouchDbProperties properties = CouchDBPropertiesSource.loadFromFile("couchdb_new.properties");

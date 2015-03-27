@@ -1,8 +1,11 @@
 package de.crawcial;
 
 /**
- * Created by Sebastian Lauber on 14.03.2015.
+ * This class defines constants used in Crawcial (mainly in the web package).
+ *
+ * @author Sebastian Lauber
  */
+@SuppressWarnings("JavaDoc")
 public class Constants {
     public final static String ACTION = "action";
     public static final String CLEARCOOKIES = "auth?action=flush";
@@ -23,6 +26,7 @@ public class Constants {
     public static final int FACEBOOK_ERROR = 10002;
     public static final int USER_ERROR = 11000;
     public static final String USER_PREFIX = "de.crawcial.user:";
+    public static final String DOCUSERID = "org.couchdb.user:crawcial_control";
     private static final String baseUrl = "?p=";
     public final static String TWITTER = baseUrl + "twitter";
     public final static String USERMGMT = baseUrl + "usermgmt";
@@ -30,5 +34,9 @@ public class Constants {
     public static final String SETUP = baseUrl + "setup";
     public static final String LOGIN = baseUrl + "login";
     public static final String FACEBOOK = baseUrl + "facebook";
+    public static String DOCUSERNAME = "crawcial_control";
+    public static String DOCUSERGROUP = DOCUSERNAME;
+    public static String DOCCONFIGDB = DOCUSERNAME;
+
 
 }

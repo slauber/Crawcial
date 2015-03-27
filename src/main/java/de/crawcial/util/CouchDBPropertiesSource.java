@@ -6,18 +6,30 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Created by Sebastian Lauber on 07.03.2015.
+ * This utility class contains a CouchDbProperty loader from files and a clone method for CouchDbProperties.
+ *
+ * @author Sebastian Lauber
  */
-public class CouchDBPropertiesSource {
+public class CouchDbPropertiesSource {
+    /**
+     * Generates a CouchDbProperties object from a config file.
+     * <p>Request parameter: dbname, createdbifnotexist, protocol, port, host, username, password</p>
+     *
+     * @param filename the file to read the configuration from
+     * @return a generated CouchDbProperties object
+     * @throws IOException              if the file cannot be accessed
+     * @throws IllegalArgumentException if the file does not contain all required parameters
+     */
     public static CouchDbProperties loadFromFile(String filename) throws IOException, IllegalArgumentException {
         Properties defaultProperties = new Properties();
         CouchDbProperties properties;
-        defaultProperties.load(CouchDBPropertiesSource.class.getClassLoader().getResourceAsStream(filename));
+        defaultProperties.load(CouchDbPropertiesSource.class.getClassLoader().getResourceAsStream(filename));
         // Load mandatory fields if available
 
         if (defaultProperties.containsKey("dbname") && defaultProperties.containsKey("createdbifnotexist")
                 && defaultProperties.containsKey("protocol") && defaultProperties.containsKey("host") &&
-                defaultProperties.containsKey("port") && defaultProperties.containsKey("username")) {
+                defaultProperties.containsKey("port") && defaultProperties.containsKey("username") &&
+                defaultProperties.containsKey("password")) {
             properties = new CouchDbProperties(defaultProperties.getProperty("dbname"),
                     Boolean.valueOf(defaultProperties.getProperty("createdbifnotexist")),
                     defaultProperties.getProperty("protocol"),
@@ -51,6 +63,12 @@ public class CouchDBPropertiesSource {
         }
     }
 
+    /**
+     * This works around an issue with the LightCouch client, CouchDbProperties are mutable and cannot be reused safely.
+     *
+     * @param src CouchDbProperties to be cloned
+     * @return cloned CouchDbProperties
+     */
     public static CouchDbProperties cloneProperties(CouchDbProperties src) {
         // (String dbName, boolean createDbIfNotExist, String protocol, String host, int port, String username, String password)
         CouchDbProperties ret = new CouchDbProperties(src.getDbName(), src.isCreateDbIfNotExist(), src.getProtocol(), src.getHost(), src.getPort(), src.getUsername(), src.getPassword());

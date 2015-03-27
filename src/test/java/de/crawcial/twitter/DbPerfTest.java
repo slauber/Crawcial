@@ -2,8 +2,8 @@ package de.crawcial.twitter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import de.crawcial.util.CouchDBPropertiesSource;
 import de.crawcial.util.CouchDbCloneClient;
+import de.crawcial.util.CouchDbPropertiesSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.lightcouch.CouchDbClient;
@@ -14,7 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Sebastian Lauber on 28.02.15.
+ * Test for database performance.
+ *
+ * @author Sebastian Lauber
+ * @deprecated
  */
 public class DbPerfTest {
     private CouchDbProperties properties;
@@ -51,15 +54,26 @@ public class DbPerfTest {
         return testList;
     }
 
+    /**
+     * Performs 10 warmup cycles.
+     *
+     * @throws InterruptedException if an error occurred during access
+     * @throws IOException          if an error occurred during access
+     */
     @Before
     public void warmUp() throws InterruptedException, IOException {
-        properties = CouchDBPropertiesSource.loadFromFile("couchdb_new.properties");
+        properties = CouchDbPropertiesSource.loadFromFile("couchdb_new.properties");
 //        properties.setDbName("benchmark");
         for (int i = 0; i < 10; ++i) {
             bench((int) (Math.random() * 2000));
         }
     }
 
+    /**
+     * Insert 250 fake Tweets.
+     *
+     * @throws Exception if an error occurred during access
+     */
     @Test(timeout = 4000)
     public void dbBenchmark250() throws Exception {
         // Run each benchmark 5 times in order to remove peaks
@@ -68,6 +82,11 @@ public class DbPerfTest {
         }
     }
 
+    /**
+     * Insert 1000 fake Tweets.
+     *
+     * @throws Exception if an error occurred during access
+     */
     @Test(timeout = 7000)
     public void dbBenchmark1000() throws Exception {
         // Run each benchmark 5 times in order to remove peaks
@@ -76,6 +95,12 @@ public class DbPerfTest {
         }
     }
 
+    /**
+     * Inserts defined amount of fake Tweets.
+     *
+     * @param amount amount of fake Tweets
+     * @return duration in milliseconds
+     */
     long bench(int amount) {
         // Open database connection and take a timestamp
         CouchDbClient dbClient = new CouchDbCloneClient(properties);

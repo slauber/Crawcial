@@ -1,7 +1,7 @@
 package de.crawcial.web.setup;
 
 import de.crawcial.Constants;
-import de.crawcial.web.util.Modules;
+import de.crawcial.web.util.CrawcialWebUtils;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 
@@ -11,7 +11,9 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Created by Sebastian Lauber on 09.03.15.
+ * This class provides information about the configuration state.
+ *
+ * @author Sebastian Lauber
  */
 public class Validator {
 
@@ -22,7 +24,12 @@ public class Validator {
     public final static int NO_VALID_CONFIG = 3;
 
 
-    // Returns information about the configuration state
+    /**
+     * Returns information about the configuration state, checks configuration file.
+     *
+     * @param sc the servlet context
+     * @return status code of database connection
+     */
     public static int isDbConfigured(ServletContext sc) {
         final InputStream is = sc.getResourceAsStream(Constants.CONFIG_PATH);
         if (is == null) {
@@ -58,7 +65,12 @@ public class Validator {
         }
     }
 
-    // Check whether displaying setup wizard is allowed
+    /**
+     * Returns whether displaying setup wizard is allowed.
+     *
+     * @param sc the servlet context
+     * @return true, if displaying setup wizard is allowed
+     */
     public static boolean isSetupEnabled(ServletContext sc) {
         int status = isDbConfigured(sc);
 
@@ -71,7 +83,7 @@ public class Validator {
         // a flag in our config, whether this has been allowed
         if (status == NO_DATABASE_CONNECTION) {
             try {
-                String rwProperty = Modules.getProperty(sc, "rewriteProperty");
+                String rwProperty = CrawcialWebUtils.getProperty(sc, "rewriteProperty");
                 return Boolean.valueOf(rwProperty);
             } catch (NullPointerException e) {
                 return false;

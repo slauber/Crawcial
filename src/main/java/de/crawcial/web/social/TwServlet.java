@@ -8,7 +8,7 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 import de.crawcial.Constants;
 import de.crawcial.twitter.TwitterStreamer;
 import de.crawcial.web.auth.AuthHelper;
-import de.crawcial.web.util.Modules;
+import de.crawcial.web.util.CrawcialWebUtils;
 import de.crawcial.web.util.Tokenmanager;
 import org.apache.commons.codec.binary.Base64;
 import org.lightcouch.CouchDbClient;
@@ -35,19 +35,35 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Sebastian Lauber on 11.03.2015.
+ * This servlet manages the Crawcial for Twitter activities.
+ *
+ * @author Sebastian Lauber
  */
 public class TwServlet extends HttpServlet {
 
+    /**
+     * Returns the running state of Crawcial for Twitter.
+     *
+     * @return true, if TwitterStreamer is running
+     */
     public static boolean isRunning() {
         return TwitterStreamer.getInstance().isRunning();
     }
 
+    /**
+     * Returns true, if TwitterStreamer is shutting down.
+     *
+     * @return true, if TwitterStreamer is shutting down
+     */
     public static boolean isShuttingDown() {
         return TwitterStreamer.getInstance().isRunning() && !TwitterStreamer.getInstance().isActive();
     }
 
-
+    /**
+     * Returns a status string, containing terms, location, start time, and runtime in seconds.
+     *
+     * @return status string, containing terms, location, start time, and runtime in seconds
+     */
     public static String getStatus() {
         List<String> terms = TwitterStreamer.getInstance().getTerms();
         Date startTime = TwitterStreamer.getInstance().getStartDate();
@@ -62,6 +78,12 @@ public class TwServlet extends HttpServlet {
         return "Crawcial for Twitter initializing...";
     }
 
+    /**
+     * Returns a base64 encoded string with current worldwide Twitter trends.
+     *
+     * @param req the http request
+     * @return base64 encoded string with current worldwide Twitter trends
+     */
     public static String getTrendingWorldwideBase64(HttpServletRequest req) {
         Twitter twitter = TwitterFactory.getSingleton();
         try {
@@ -93,10 +115,23 @@ public class TwServlet extends HttpServlet {
         return null;
     }
 
+    /**
+     * Returns true, if the media downloader has been disabled due to low memory.
+     *
+     * @return true, if the media downloader has been disabled due to low memory
+     */
     public static boolean isLowMemory() {
         return TwitterStreamer.getInstance().isLowMemory();
     }
 
+    /**
+     * Prefills the terms field of Crawcial for Twitter with the current world wide trends.
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter(Constants.ACTION) != null && req.getParameter(Constants.ACTION).equals("trends")) {
@@ -106,6 +141,15 @@ public class TwServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Configures and starts TwitterStreamer or shuts it down.
+     * <p>request parameter: action, terms, geo, ne, sw, media, mediahttps, imgsize, </p>
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (AuthHelper.isAuthenticated(req) && req.getParameter("action") != null) {
@@ -114,7 +158,7 @@ public class TwServlet extends HttpServlet {
             switch (actionParam) {
                 case "persist":
                     if (!TwitterStreamer.getInstance().isRunning() && !TwitterStreamer.getInstance().isActive()) {
-                        CouchDbProperties dbProperties = Modules.getCouchDbProperties(req.getServletContext(), Constants.TWITTER_DB);
+                        CouchDbProperties dbProperties = CrawcialWebUtils.getCouchDbProperties(req.getServletContext(), Constants.TWITTER_DB);
                         String termString = req.getParameter("terms");
                         List<String> terms = null;
                         if (termString != null) {
@@ -147,8 +191,9 @@ public class TwServlet extends HttpServlet {
                             crs.setConfig(oauth, terms, Boolean.valueOf(req.getParameter("media")), dbProperties,
                                     req.getParameter("imgsize"), Boolean.valueOf(req.getParameter("mediahttps")), l);
                             Thread t = new Thread(crs);
-                            t.setName("Master-of-desaster");
-                            CouchDbProperties masterDbProperties = Modules.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB);
+                            t.setName("TwitterStreamerMain");
+                            CouchDbProperties masterDbProperties = CrawcialWebUtils.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB);
+                            //noinspection ConstantConditions
                             CouchDbClient dbClient = new CouchDbClient(masterDbProperties);
                             JsonObject j;
                             boolean existed;

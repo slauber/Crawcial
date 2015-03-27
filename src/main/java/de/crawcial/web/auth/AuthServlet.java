@@ -10,9 +10,20 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Created by Sebastian Lauber on 08.03.15.
+ * This servlet  implements the authentication API of Crawcial, that verifies the credentials and redirects the user.
+ *
+ * @author Sebastian Lauber
  */
 public class AuthServlet extends HttpServlet {
+    /**
+     * This method controls the login flow.
+     * <p>request parameter: action, user, password</p>
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during validation
+     * @throws IOException      if an error occurred during validation
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter(Constants.ACTION) != null) {
@@ -42,26 +53,35 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * This method controls the logout flow.
+     * <p>request parameter: action</p>
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during validation
+     * @throws IOException      if an error occurred during validation
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Cookie[] reqCookies = req.getCookies();
+        String redirect = Constants.LOGIN;
         if (reqCookies != null) {
             if (req.getParameter(Constants.ACTION) != null && req.getParameter(Constants.ACTION).equals("flush")) {
                 for (Cookie c : reqCookies) {
                     c.setMaxAge(0);
                     resp.addCookie(c);
                 }
-                resp.sendRedirect(Constants.HOME);
+                redirect = Constants.HOME;
             } else {
-                String redirect = Constants.LOGIN;
                 for (Cookie c : reqCookies) {
                     if (c.getName().equals(Constants.COOKIE_NAME)) {
                         redirect = Constants.HOME;
                     }
                 }
-                resp.sendRedirect(redirect);
             }
         }
+        resp.sendRedirect(redirect);
     }
 
 }

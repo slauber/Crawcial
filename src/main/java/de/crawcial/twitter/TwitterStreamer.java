@@ -1,8 +1,5 @@
 package de.crawcial.twitter;
 
-/**
- * Created by Sebastian Lauber on 21.02.15.
- */
 
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Constants;
@@ -21,6 +18,11 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * This singleton class handles the management of the Twitter Streamer.
+ *
+ * @author Sebastian Lauber
+ */
 public class TwitterStreamer implements Runnable {
 
     final static private Logger logger = LoggerFactory.getLogger(TwitterStreamer.class);
@@ -38,50 +40,108 @@ public class TwitterStreamer implements Runnable {
     private int threads = Runtime.getRuntime().availableProcessors();
     private Date startDate;
 
+    /**
+     * Returns the TwitterStreamer singleton.
+     *
+     * @return TwitterStreamer singleton
+     */
     public static TwitterStreamer getInstance() {
         return ourInstance;
     }
 
+    /**
+     * Return the low memory status triggered by the media downloader.
+     *
+     * @return True, if the system is low on memory and media downloads are disabled
+     */
     public boolean isLowMemory() {
         return lowMemory;
     }
 
+    /**
+     * Sets the low memory status, is triggered by the media downloader, could be reset by the user.
+     *
+     * @param lowMemory Disables the media downloader and sets the Twitter Streamer status to low memory
+     */
     public void setLowMemory(boolean lowMemory) {
         this.lowMemory = lowMemory;
     }
 
+    /**
+     * Returns true, if the TwitterStreamer is active and a shutdown has not been initiated.
+     *
+     * @return true, if active and not shutting down
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isActive() {
         return active;
     }
 
+    /**
+     * Returns current filter terms.
+     *
+     * @return List of current filter terms.
+     */
     public List<String> getTerms() {
         return terms;
     }
 
+    /**
+     * Returns current filter geo locations.
+     *
+     * @return List of current filter geo locations
+     */
     public List<Location> getLocations() {
         return locations;
     }
 
+    /**
+     * Returns true, if the TwitterStreamer is running, even if it is shutting down. Returns false, if inactive and shut down.
+     *
+     * @return true, if the TwitterStreamer is running, even if it is shutting down; false, if inactive and shut down.
+     */
     public boolean isRunning() {
         return running;
     }
 
+    /**
+     * Return the start date of this TwitterStreamer instance.
+     *
+     * @return start date of this TwitterStreamer instance
+     */
     public Date getStartDate() {
         return startDate;
     }
 
+    /**
+     * Return the current message count.
+     *
+     * @return current message count
+     */
     public long getResult() {
         return result;
     }
 
+    /**
+     * Sets the configuration for this TwitterStreaming instance, is required to be called in order to run a TwitterStreamer.
+     *
+     * @param auth          OAuth authentication data
+     * @param terms         List of filter terms
+     * @param downloadMedia true, if media downloader enabled, false to disable media downloads
+     * @param properties    CouchDB properties for the Crawcial Twitter Database
+     * @param imgSize       requested imgSize (thumb, small, medium, large)
+     * @param mediaHttps    true if https should be used for media downloads
+     * @param location      A geo location filter (optional)
+     * @throws IllegalArgumentException If your configuration is invalid
+     */
     public void setConfig(Authentication auth, List<String> terms, boolean downloadMedia,
-                          CouchDbProperties properties, String imgSize, boolean mediaHttps, Location l) throws IllegalArgumentException {
+                          CouchDbProperties properties, String imgSize, boolean mediaHttps, Location location) throws IllegalArgumentException {
         if (!downloadMedia ^ Arrays.asList(imgSizes).contains(imgSize)) {
             // Receive OAuth params
             this.auth = auth;
 
-            if (l != null) {
-                locations = Arrays.asList(l);
+            if (location != null) {
+                locations = Arrays.asList(location);
             } else {
                 locations = null;
             }
@@ -100,10 +160,16 @@ public class TwitterStreamer implements Runnable {
         }
     }
 
+    /**
+     * Initiates a proper shutdown.
+     */
     public void shutdown() {
         active = false;
     }
 
+    /**
+     * Forces a shutdown (clears queues and shuts down all workers).
+     */
     public void forceShutdown() {
         DatabaseService.getInstance().forceShutdown();
     }

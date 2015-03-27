@@ -11,7 +11,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Sebastian Lauber on 06.03.15.
+ * Waits for new Tweets on the queue and schedules a media download (if necessary) or puts it to the outgoing vector.
+ *
+ * @author Sebastian Lauber
  */
 public class LoadExecutor implements Runnable {
 
@@ -21,7 +23,12 @@ public class LoadExecutor implements Runnable {
     private boolean running = true;
     private DatabaseService ds = DatabaseService.getInstance();
 
-
+    /**
+     * This constructor sets the incoming queue and the outgoing vector.
+     *
+     * @param queue  incoming queue of Tweets
+     * @param target outgoing vector of JSON
+     */
     public LoadExecutor(BlockingQueue<String> queue, Vector<JsonObject> target) {
         this.queue = queue;
         this.target = target;
@@ -60,6 +67,9 @@ public class LoadExecutor implements Runnable {
         }
     }
 
+    /**
+     * Initiates a proper shutdown.
+     */
     public void shutdown() {
         running = false;
     }

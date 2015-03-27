@@ -17,6 +17,11 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.Map;
 
+/**
+ * This servlet handles the Twitter login process.
+ *
+ * @author Sebastian Lauber
+ */
 public class TwAuth extends HttpServlet {
     private String CONSUMERKEY;
     private String CONSUMERSECRET;
@@ -28,6 +33,14 @@ public class TwAuth extends HttpServlet {
     }
 
 
+    /**
+     * This method checks for the required configuration and controls the Twitter login process.
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         loadProperties(req);
@@ -52,6 +65,14 @@ public class TwAuth extends HttpServlet {
         }
     }
 
+    /**
+     * This method handles the Twitter OAuth callback and sets the twtoken cookie.
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Twitter twitter = (Twitter) req.getSession().getAttribute("twitter");

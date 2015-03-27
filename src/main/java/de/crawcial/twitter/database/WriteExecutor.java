@@ -7,7 +7,9 @@ import org.lightcouch.CouchDbClient;
 import java.util.Vector;
 
 /**
- * Created by Sebastian Lauber on 06.03.15.
+ * This of this runnable flush the given JSONObject vector to the database.
+ *
+ * @author Sebastian Lauber
  */
 class WriteExecutor implements Runnable {
     private final Vector<JsonObject> vector;
@@ -15,6 +17,12 @@ class WriteExecutor implements Runnable {
     private boolean alive = true;
     private int bufferLimit;
 
+    /**
+     * This constructor sets the outgoing vector and the maximal size of that buffer.
+     *
+     * @param vector      outgoing vector of JSONObjects (containing Tweets)
+     * @param bufferLimit maximal size of the outgoing vector
+     */
     public WriteExecutor(Vector<JsonObject> vector, int bufferLimit) {
         this.vector = vector;
         this.bufferLimit = bufferLimit;
@@ -39,6 +47,9 @@ class WriteExecutor implements Runnable {
         }
     }
 
+    /**
+     * Initiates a proper shutdown.
+     */
     public void shutdown() {
         dbClient = new CouchDbCloneClient(DatabaseService.getInstance().getDbProperties());
         alive = false;

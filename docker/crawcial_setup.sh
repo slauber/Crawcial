@@ -73,7 +73,10 @@ if [ "$password_conf" == "$password" ]; then
 		printf '.'
 		sleep 2
 	done	
-	curl -k --silent -XPOST https://127.0.0.1:"$craport"/updateconfig --data "port=5984&protocol=http&user=$user&password=$password&feedback=Accept&action=update&code=2&host=couchdb"
+	curl -k --silent -XPOST https://127.0.0.1:"$craport"/updateconfig --data \
+	  "port=5984&protocol=http&user=$user&password=$password&feedback=\
+	  Accept&action=update&code=2&host=couchdb"
+	
 	echo
 	echo "Your Crawcial instance is now available via HTTPS at port $craport"
 else
