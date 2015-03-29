@@ -4,6 +4,7 @@
 <%@ page import="de.crawcial.web.util.Tokenmanager" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>
 <%@ page import="java.nio.charset.Charset" %>
+<%@ page import="java.util.Map" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <script>
@@ -164,8 +165,13 @@
 </form>
 <% }
 } else {
-%><p style="color: crimson;font-weight: bold">Crawcial for Twitter is not ready. Please check your <a
-        href="<%=Constants.CONFIGURATION%>">token configuration</a>.</p>
+    Map<String, String> token = Tokenmanager.getSocialToken(request);
+    if (!token.containsKey("twconsumerkey") || token.get("twconsumerkey").equals("")
+            || !token.containsKey("twconsumersecret") || token.get("twconsumersecret").equals("")) { %>
+<p style="color: crimson;font-weight: bold">Crawcial for Twitter is not ready. Please check your
+    <a href="<%=Constants.CONFIGURATION%>">token configuration</a>.<%}%></p>
+
+<p>In order to use Crawcial for Twitter, you need to sign in with Twitter.</p>
 <%
         }
     }

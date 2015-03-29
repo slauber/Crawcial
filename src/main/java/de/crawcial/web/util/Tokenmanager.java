@@ -30,8 +30,6 @@ import java.util.Map;
  * @author Sebastian Lauber
  */
 public class Tokenmanager extends HttpServlet {
-    private final static String[] keys = {"fbappid", "fbappsecret", "fbverifytoken", "twconsumerkey", "twconsumersecret"};
-
     /**
      * Returns all OAuth tokens available in the database.
      *
@@ -40,11 +38,12 @@ public class Tokenmanager extends HttpServlet {
      * @throws IOException if configuration cannot be accessed
      */
     public static Map<String, String> getSocialToken(HttpServletRequest req) throws IOException {
+        //noinspection ConstantConditions
         CouchDbClient dbClient = new CouchDbClient(CrawcialWebUtils.getCouchDbProperties(req.getServletContext(), Constants.CONFIGDB));
         Map<String, String> values = new HashMap<>();
         try {
             JsonObject o = dbClient.find(JsonObject.class, Constants.SOCIAL_KEYS);
-            for (String k : keys) {
+            for (String k : Constants.keys) {
                 if (o.has(k)) {
                     values.put(k, o.get(k).getAsString());
                 }
@@ -106,6 +105,7 @@ public class Tokenmanager extends HttpServlet {
      * @param req the http request
      * @return twitter4j OAuth credentials (from user token)
      */
+    @SuppressWarnings("ConstantConditions")
     public static twitter4j.auth.AccessToken getTwitter4jAccessToken(HttpServletRequest req) {
         String accessToken = null;
         String accessTokenSecret = null;
@@ -128,6 +128,7 @@ public class Tokenmanager extends HttpServlet {
      */
     public static facebook4j.auth.AccessToken getFacebookAccessToken(HttpServletRequest req) {
         try {
+            //noinspection ConstantConditions
             return new facebook4j.auth.AccessToken(getTokenFromCookie(req, "fbtoken"));
         } catch (NullPointerException e) {
             return null;
@@ -167,6 +168,7 @@ public class Tokenmanager extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (AuthHelper.isAuthenticated(req) && req.getParameter("action") != null || req.getParameter("action").equals("update")) {
 
+            //noinspection ConstantConditions
             CouchDbClient dbClient = new CouchDbClient(CrawcialWebUtils.getCouchDbProperties(getServletContext(), Constants.CONFIGDB));
             JsonObject social;
             try {
@@ -176,7 +178,7 @@ public class Tokenmanager extends HttpServlet {
             }
 
             social.addProperty("_id", Constants.SOCIAL_KEYS);
-            for (String k : keys) {
+            for (String k : Constants.keys) {
                 if (req.getParameter(k) != null) {
                     social.addProperty(k, req.getParameter(k));
                 }

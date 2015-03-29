@@ -62,11 +62,6 @@ public class Entry {
     }
 
     @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
-
-    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(id).append(time).append(changes).toHashCode();
     }
@@ -81,6 +76,11 @@ public class Entry {
         }
         Entry rhs = ((Entry) other);
         return new EqualsBuilder().append(id, rhs.id).append(time, rhs.time).append(changes, rhs.changes).isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
 }

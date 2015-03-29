@@ -54,6 +54,7 @@
         <button disabled id="createUser">Create new user</button>
     </div>
     <input type="hidden" name="action" value="adduser">
+
     <div>User name and password require at least four characters</div>
 </form>
 <form class="crawcial-login-form" action="user" method="post">

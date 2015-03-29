@@ -46,25 +46,6 @@ public class FbAuth extends HttpServlet {
         REDIRECT_URI = callbackURL.toString();
     }
 
-
-    /**
-     * This method checks the configuration status and redirects to the configuration page, if necessary.
-     *
-     * @param req  the http request
-     * @param resp the http response
-     * @throws ServletException if an error occurred during access
-     * @throws IOException      if an error occurred during access
-     */
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        loadProperties(req);
-        if (FB_APP_ID == null || FB_APP_ID.equals("") || FB_APP_SECRET == null || FB_APP_SECRET.equals("")) {
-            resp.sendRedirect(Constants.CONFIGURATION);
-        } else {
-            resp.sendRedirect(getFbAuthUrl());
-        }
-    }
-
     /**
      * This method handles the Facebook OAuth callback and sets the fbtoken cookie.
      * <p>request parameter: code</p>
@@ -88,6 +69,24 @@ public class FbAuth extends HttpServlet {
             tokenCookie.setHttpOnly(true);
             resp.addCookie(tokenCookie);
             resp.sendRedirect(Constants.FACEBOOK);
+        }
+    }
+
+    /**
+     * This method checks the configuration status and redirects to the configuration page, if necessary.
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        loadProperties(req);
+        if (FB_APP_ID == null || FB_APP_ID.equals("") || FB_APP_SECRET == null || FB_APP_SECRET.equals("")) {
+            resp.sendRedirect(Constants.CONFIGURATION);
+        } else {
+            resp.sendRedirect(getFbAuthUrl());
         }
     }
 

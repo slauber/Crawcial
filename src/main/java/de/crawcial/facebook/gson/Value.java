@@ -118,11 +118,6 @@ public class Value {
     }
 
     @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
-
-    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(item).append(verb).append(parentId).append(senderId).append(createdTime).toHashCode();
     }
@@ -137,6 +132,11 @@ public class Value {
         }
         Value rhs = ((Value) other);
         return new EqualsBuilder().append(item, rhs.item).append(verb, rhs.verb).append(parentId, rhs.parentId).append(senderId, rhs.senderId).append(createdTime, rhs.createdTime).isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
 }

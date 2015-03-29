@@ -44,11 +44,6 @@ public class Change {
     }
 
     @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
-
-    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(field).append(value).toHashCode();
     }
@@ -63,6 +58,11 @@ public class Change {
         }
         Change rhs = ((Change) other);
         return new EqualsBuilder().append(field, rhs.field).append(value, rhs.value).isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
 }

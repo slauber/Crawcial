@@ -46,11 +46,6 @@ public class FbChange {
     }
 
     @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
-
-    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(object).append(entry).toHashCode();
     }
@@ -65,6 +60,11 @@ public class FbChange {
         }
         FbChange rhs = ((FbChange) other);
         return new EqualsBuilder().append(object, rhs.object).append(entry, rhs.entry).isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
 }

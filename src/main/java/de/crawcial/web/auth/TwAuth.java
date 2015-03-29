@@ -32,6 +32,35 @@ public class TwAuth extends HttpServlet {
         CONSUMERSECRET = socialToken.get("twconsumersecret");
     }
 
+    /**
+     * This method handles the Twitter OAuth callback and sets the twtoken cookie.
+     *
+     * @param req  the http request
+     * @param resp the http response
+     * @throws ServletException if an error occurred during access
+     * @throws IOException      if an error occurred during access
+     */
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (req.getParameter("denied") == null) {
+            Twitter twitter = (Twitter) req.getSession().getAttribute("twitter");
+            RequestToken requestToken = (RequestToken) req.getSession().getAttribute("requestToken");
+            String verifier = req.getParameter("oauth_verifier");
+            try {
+                AccessToken token = twitter.getOAuthAccessToken(requestToken, verifier);
+                req.getSession().removeAttribute("requestToken");
+                Cookie tokenCookie = new Cookie("twtoken", Base64.getEncoder().encodeToString(
+                        (token.getToken() + " - " + token.getTokenSecret()).getBytes()));
+                tokenCookie.setMaxAge(-1);
+                tokenCookie.setHttpOnly(true);
+                resp.addCookie(tokenCookie);
+
+            } catch (TwitterException e) {
+                // Redirect to landing page
+            }
+        }
+        resp.sendRedirect(Constants.TWITTER);
+    }
 
     /**
      * This method checks for the required configuration and controls the Twitter login process.
@@ -62,33 +91,6 @@ public class TwAuth extends HttpServlet {
             } catch (TwitterException e) {
                 resp.sendRedirect(Constants.CONFIGURATION + "&e=" + Constants.TWITTER_ERROR);
             }
-        }
-    }
-
-    /**
-     * This method handles the Twitter OAuth callback and sets the twtoken cookie.
-     *
-     * @param req  the http request
-     * @param resp the http response
-     * @throws ServletException if an error occurred during access
-     * @throws IOException      if an error occurred during access
-     */
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Twitter twitter = (Twitter) req.getSession().getAttribute("twitter");
-        RequestToken requestToken = (RequestToken) req.getSession().getAttribute("requestToken");
-        String verifier = req.getParameter("oauth_verifier");
-        try {
-            AccessToken token = twitter.getOAuthAccessToken(requestToken, verifier);
-            req.getSession().removeAttribute("requestToken");
-            Cookie tokenCookie = new Cookie("twtoken", Base64.getEncoder().encodeToString(
-                    (token.getToken() + " - " + token.getTokenSecret()).getBytes()));
-            tokenCookie.setMaxAge(-1);
-            tokenCookie.setHttpOnly(true);
-            resp.addCookie(tokenCookie);
-            resp.sendRedirect(Constants.TWITTER);
-        } catch (TwitterException e) {
-            throw new ServletException(e);
         }
     }
 }
