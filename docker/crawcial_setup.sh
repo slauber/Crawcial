@@ -47,7 +47,7 @@ if [ "$#" -eq 7 ]; then
 	read customcraport
 	[ ! -z "$customcraport" ] && craport="$customcraport" || craport="443"
 	echo "Enter an avaiable TCP port for http access to Crawcial (use for FB Callbacks) or press [ENTER] to use default (80)"
-	read customcraport
+	read customcraporth
 	[ ! -z "$customcraporth" ] && craport="$customcraporth" || craporth="80"
 
 fi
