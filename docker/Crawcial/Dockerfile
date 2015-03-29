@@ -12,4 +12,7 @@ RUN chmod 555 /start.sh && cd /data && git clone https://github.com/slauber/craw
 # Default command to run on container boot
 ENTRYPOINT ["/start.sh"]
 
+# Expose HTTPS
 EXPOSE 8443
+# Expose HTTP (do not use for anything but Facebook Callbacks!)
+EXPOSE 8080

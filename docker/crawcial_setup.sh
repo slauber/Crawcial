@@ -9,8 +9,8 @@ craimgtag=slauber/crawcial
 if [[ $EUID -ne 0 ]]; then echo "This script must be run as root" 1>&2;exit 1;fi
 command -v docker >/dev/null 2>&1 || { echo >&2 "This script requires docker. Please install it first."; exit 1; }
 
-if [ "$#" -eq 6 ]; then
-	## Non-interactive - 6 Params: dbuser dbpassword dbcontainername dbport crawcialcontainername crawcialport
+if [ "$#" -eq 7 ]; then
+	## Non-interactive - 7 Params: dbuser dbpassword dbcontainername dbport crawcialcontainername crawcialport crawcialfbcallbackport
 	user="$1"
 	password="$2"
 	password_conf="$2"
@@ -18,12 +18,13 @@ if [ "$#" -eq 6 ]; then
 	port="$4"
 	craname="$5"
 	craport="$6"
+	craporth="$7"
 	else
 	
 ## Interactive
 	echo "*** Crawcial with CouchDB for Docker setup ****"
 	echo
-	echo "for non-interactive, use ./crawcial_setup.sh [dbuser dbpassword dbcontainername dbport crawcialcontainername crawcialport]"
+	echo "for non-interactive, use ./crawcial_setup.sh [dbuser dbpassword dbcontainername dbport crawcialcontainername crawcialport crawcialfbcallbackport]"
 	echo
 	echo "Do not use blanks or not URL-safe characters!"
 	echo
@@ -45,21 +46,19 @@ if [ "$#" -eq 6 ]; then
 	echo "Enter an avaiable TCP port for https access to Crawcial or press [ENTER] to use default (443)"
 	read customcraport
 	[ ! -z "$customcraport" ] && craport="$customcraport" || craport="443"
+	echo "Enter an avaiable TCP port for http access to Crawcial (use for FB Callbacks) or press [ENTER] to use default (80)"
+	read customcraport
+	[ ! -z "$customcraporth" ] && craport="$customcraporth" || craporth="80"
 
 fi
 ## Check for matching passwords
 
-if [ "$password_conf" == "$password" ]; then	
-	## Start containers	
-		
+if [ "$password_conf" == "$password" ]; then
+
+	## Start CouchDB and set credentials
 	echo
 	echo "**** Starting CouchDB container... ****"
     docker run -d -p "$port":6984 --name="$name" "$imgtag"
-	echo
-	echo "**** Starting Crawcial container... ****"
-	docker run -d -p "$craport":8443 --link="$name":"couchdb" --name="$craname" "$craimgtag"
-	
-	## Set credentials and pass them to Crawcial
 	echo
 	echo "**** Setting CouchDB credentials ****"
 	until $(curl -k --output /dev/null --silent --head --fail https://127.0.0.1:"$port"); do
@@ -67,6 +66,11 @@ if [ "$password_conf" == "$password" ]; then
 		sleep 2
 	done
 	curl -k --silent -XPUT https://127.0.0.1:"$port"/_config/admins/$user -d \""$password"\"
+   echo
+	echo "**** Starting Crawcial container... ****"
+	docker run -d -p "$craport":8443 -p "$craporth":8080 --link="$name":"couchdb" --name="$craname" "$craimgtag"
+
+	## Start Crawcial and set credentials
 	echo
 	echo "**** Preparing Crawcial ****"
 	until $(curl -k --output /dev/null --silent --head --fail https://127.0.0.1:"$craport"); do
@@ -76,7 +80,6 @@ if [ "$password_conf" == "$password" ]; then
 	curl -k --silent -XPOST https://127.0.0.1:"$craport"/updateconfig --data \
 	  "port=5984&protocol=http&user=$user&password=$password&feedback=\
 	  Accept&action=update&code=2&host=couchdb"
-	
 	echo
 	echo "Your Crawcial instance is now available via HTTPS at port $craport"
 else

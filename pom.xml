@@ -99,7 +99,7 @@
                 </executions>
                 <configuration>
                     <jvmArgs>-XX:+AggressiveHeap</jvmArgs>
-                    <jettyXml>jetty.xml,jetty-ssl.xml,jetty-https.xml</jettyXml>
+                    <jettyXml>jetty.xml,jetty-ssl.xml,jetty-https.xml,jetty-http.xml</jettyXml>
                 </configuration>
             </plugin>
             <plugin>
