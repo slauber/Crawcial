@@ -3,23 +3,19 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <% if (!AuthHelper.isAuthenticated(request)) {%>
-<div class="crawcial-login-container" style="text-align: center; vertical-align: middle;width: 340px;">
+<div style="text-align: center; vertical-align: middle;width: 340px;">
 
-    <img class="uk-margin-bottom" src="img/crawcial.png" width="256" height="256" alt="Crawcial">
+    <img src="img/crawcial.png" width="256" height="256" alt="Crawcial">
 
-    <form class="crawcial-login-form" action="auth" method="post">
+    <form action="auth" method="post">
 
-        <div class="crawcial-form-row">
-            <input class="crawcial-form-large" type="text" name="user" value=""
-                   placeholder="Username" autofocus="">
+        <div>
+            <input type="text" name="user" placeholder="Username" autofocus="">
         </div>
-        <div class="crawcial-form-row">
-            <div class="crawcial-form-password">
-                <input class="crawcial-form-large" type="password" name="password" value=""
-                       placeholder="Password">
-            </div>
+        <div>
+            <input type="password" name="password" placeholder="Password">
         </div>
-        <div class="crawcial-form-row">
+        <div>
             <button>Login</button>
         </div>
         <input type="hidden" name="action" value="signin">

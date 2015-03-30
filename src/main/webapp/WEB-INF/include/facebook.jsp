@@ -38,13 +38,11 @@
 <%
     }%>
 <div style="text-align: center; vertical-align: middle;width: 340px;">
-    <form class="crawcial-login-form" action="facebook" method="post">
-
-        <div class="crawcial-form-row">
-            <input class="crawcial-form-large" type="text" name="callback" value=""
-                   placeholder="Callback URL" autofocus="">
+    <form action="facebook" method="post">
+        <div>
+            <input type="text" name="callback" placeholder="Callback URL" autofocus="">
         </div>
-        <div class="crawcial-form-row">
+        <div>
             <button>Setup callback</button>
         </div>
         <input type="hidden" name="action" value="setupSubscriptions">

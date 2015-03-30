@@ -29,57 +29,62 @@
 </div>
 <%}%>
 <form id="setup" name="setup" action="updateconfig" method="post">
-    <p>
+    <div>
         We need to setup a connection to a CouchDB server. In order to prepare Crawcial's databases, you need to
         provide the database administrator credentials. Don't worry, they won't be persisted, a seperate user
         for Crawcial will be created.
-    </p>
+    </div>
 
-    <p>
+    <div>
         <label for="host">CouchDB host<br/>
             <input type="text" name="host" id="host" value="localhost" size="40"/></label>
-    </p>
+    </div>
 
-    <p>
+    <div>
         <label for="port">CouchDB port<br/>
             <input type="number" name="port" id="port" value="5984" size="40"/></label>
-    </p>
+    </div>
 
-    <p>
+    <div>
         <label for="protocol">CouchDB protocol<br/>
             <select id="protocol" name="protocol">
                 <option>http</option>
                 <option>https</option>
             </select></label>
-    </p>
-    <p>You are required to set a <a href="http://docs.couchdb.org/en/latest/intro/security.html#creating-new-admin-user"
-                                    target="_blank">CouchDB administrator password</a>, CoachDB's admin party mode will
-        not be accepted.</p>
+    </div>
+    <div>You are required to set a <a
+            href="http://docs.couchdb.org/en/latest/intro/security.html#creating-new-admin-user"
+            target="_blank">CouchDB administrator password</a>, CoachDB's admin party mode will
+        not be accepted.
+    </div>
 
-    <p>
+    <div>
         <label for="user">CouchDB administrator username<br/>
             <input type="text" name="user" id="user" value="" size="20"/></label>
-    </p>
+    </div>
 
-    <p>
+    <div>
         <label for="password">CouchDB administrator password<br/>
             <input type="password" name="password" id="password" value="" size="20"/></label>
-    </p>
+    </div>
 
-    <p>
+    <div>
         <label for="feedback">Yes, please create new random
             database credentials and generate tables "crawcial_control", "crawcial_facebook" and "crawcial_twitter" (if
             they
             do not exist).
             Those new databases are only accessible with the generated credentials or an administrative account on this
             CouchDB instance.
-            <input type="checkbox" name="feedback" id="feedback" value="Accept" onClick="EnableSubmit(this)"/> I know
-            what I am doing.</label>
-    </p>
+            <div><input type="checkbox" name="feedback" id="feedback" value="Accept" onClick="EnableSubmit(this)"/> I
+                know
+                what I am doing.
+            </div>
+        </label>
+    </div>
 
-    <p>
+    <div>
         <button type="submit" disabled id="update" name="action" value="update">Test and proceed</button>
-    </p>
+    </div>
     <input type="hidden" name="code" value="<%=code%>">
 </form>
 <% } else {%>

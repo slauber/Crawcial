@@ -15,7 +15,6 @@
         imgsize.disabled = val.checked != true;
     }
 </script>
-
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
 <script>
     var rectangle;
@@ -91,7 +90,7 @@
 <% if (TwServlet.isShuttingDown()) {%>
 <strong>Crawcial for Twitter is shutting down</strong>
 
-<form class="crawcial-login-form" action="twitter" method="post">
+<form action="twitter" method="post">
     <button>Force shutdown (could cause data inconsistency)</button>
     <input type="hidden" name="action" value="shutdownNow">
 </form>
@@ -100,7 +99,7 @@
 <%} else {%>
 <strong>Crawcial for Twitter is active</strong>
 
-<form class="crawcial-login-form" action="twitter" method="post">
+<form action="twitter" method="post">
     <button>Shutdown now</button>
     <input type="hidden" name="action" value="shutdown">
 </form>
@@ -123,9 +122,9 @@
     if (!TwServlet.isRunning()) {%>
 <a href="twitter?action=trends">Preload terms with current world wide trending topics</a>
 <button onclick="toggle_visibility('geoselector');toggle_value('geo')">Toggle Geo</button>
-<form class="crawcial-login-form" action="twitter" method="post">
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" size="60" name="terms"
+<form action="twitter" method="post">
+    <div>
+        <input type="text" size="60" name="terms"
                value="<%if(request.getParameter("terms")!=null){%><%=new String(Base64.decodeBase64(request.getParameter("terms")),Charset.forName("UTF-8")).trim()%><%}%>"
                placeholder="Filter terms" autofocus="">
     </div>
@@ -158,7 +157,7 @@
     </div>
 
 
-    <div class="crawcial-form-row">
+    <div>
         <button>Go</button>
     </div>
     <input type="hidden" name="action" value="persist">

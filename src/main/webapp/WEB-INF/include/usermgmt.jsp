@@ -34,31 +34,31 @@
 <% if (request.getParameter("e") != null && Integer.valueOf(request.getParameter("e")).equals(Constants.USER_ERROR)) { %>
 <div><h3>Could not perform update</h3></div>
 <%}%>
-<form class="crawcial-login-form" action="user" method="post">
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="user"
+<form action="user" method="post">
+    <div>
+        <input type="text" name="user"
                value=""
                placeholder="Username" autofocus="" id="username">
     </div>
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="password" name="password"
+    <div>
+        <input type="password" name="password"
                value=""
                placeholder="Password" onkeyup="checkPass(); return false;" id="password">
     </div>
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="password" name="password2"
+    <div>
+        <input type="password" name="password2"
                value=""
                placeholder="Confirm password" onkeyup="checkPass(); return false;" id="password1">
     </div>
-    <div class="crawcial-form-row">
+    <div>
         <button disabled id="createUser">Create new user</button>
     </div>
     <input type="hidden" name="action" value="adduser">
 
     <div>User name and password require at least four characters</div>
 </form>
-<form class="crawcial-login-form" action="user" method="post">
-    <div class="crawcial-form-row">
+<form action="user" method="post">
+    <div>
         <button>Delete current user</button>
     </div>
     <input type="hidden" name="action" value="deluser">

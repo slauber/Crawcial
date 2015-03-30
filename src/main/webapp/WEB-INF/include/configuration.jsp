@@ -12,34 +12,34 @@
 <%}%>
 <p>In order to work properly, Crawcial needs some information about its corresponding apps on Facebook and Twitter.</p>
 
-<form class="crawcial-login-form" action="tokenmgr" method="post">
+<form action="tokenmgr" method="post">
     <p><a href="/apptutorial.jsp" target="_blank">Click here to learn how to get these values</a></p>
 
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="fbappid"
+    <div>
+        <input type="text" name="fbappid"
                value="<%=values.containsKey("fbappid")?values.get("fbappid"):""%>"
                placeholder="Facebook App ID" autofocus="">
     </div>
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="fbappsecret"
+    <div>
+        <input type="text" name="fbappsecret"
                value="<%=values.containsKey("fbappsecret")?values.get("fbappsecret"):""%>"
                placeholder="Facebook App Secret">
     </div>
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="twconsumerkey"
+    <div>
+        <input type="text" name="twconsumerkey"
                value="<%=values.containsKey("twconsumerkey")?values.get("twconsumerkey"):""%>"
                placeholder="Twitter Consumer Key">
     </div>
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="twconsumersecret"
+    <div>
+        <input type="text" name="twconsumersecret"
                value="<%=values.containsKey("twconsumersecret")?values.get("twconsumersecret"):""%>"
                placeholder="Twitter Consumer Secret">
     </div>
-    <div class="crawcial-form-row">
+    <div>
         <button <%=!AuthHelper.isAuthenticated(request) ? "disabled" : ""%>>Save</button>
     </div>
-    <div class="crawcial-form-row">
-        <input class="crawcial-form-large" type="text" name="fbverifytoken"
+    <div>
+        <input type="text" name="fbverifytoken"
                value="<%=values.containsKey("fbverifytoken")?values.get("fbverifytoken"):""%>"
                placeholder="Facebook Verify Token">
     </div>
