@@ -20,7 +20,6 @@ public class FacebookStaticLoader {
     private static FacebookStaticLoader ourInstance = new FacebookStaticLoader();
     private static Facebook fb;
     private static AccessToken token;
-
     private FacebookStaticLoader() {
     }
 

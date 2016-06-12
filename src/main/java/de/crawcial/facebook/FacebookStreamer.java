@@ -10,6 +10,8 @@ import facebook4j.Facebook;
 import facebook4j.auth.AccessToken;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This singleton class handles the management of the Facebook Streamer.
@@ -17,6 +19,7 @@ import org.lightcouch.CouchDbProperties;
  * @author Sebastian Lauber
  */
 public class FacebookStreamer {
+    final static private Logger logger = LoggerFactory.getLogger(FacebookStreamer.class);
     private static Facebook fb;
     private static AccessToken token;
 
@@ -135,7 +138,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject addStatus(JsonObject pageJson, String statusId) {
-        System.out.println("Add statusId: " + statusId);
+        logger.debug("Add statusId: " + statusId);
         return pageJson;
     }
 
@@ -148,7 +151,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject addLike(JsonObject pageJson, String parentId, String senderId) {
-        System.out.println("Add like parentId: " + parentId + " senderId: " + senderId);
+        logger.debug("Add like parentId: " + parentId + " senderId: " + senderId);
         return pageJson;
     }
 
@@ -161,7 +164,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject addComment(JsonObject pageJson, String commentId, String parentId) {
-        System.out.println("Add comment parentId: " + parentId + " commentId: " + commentId);
+        logger.debug("Add comment parentId: " + parentId + " commentId: " + commentId);
         return pageJson;
     }
 
@@ -173,7 +176,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject editStatus(JsonObject pageJson, String statusId) {
-        System.out.println("Edit statusId: " + statusId);
+        logger.debug("Edit statusId: " + statusId);
         return pageJson;
     }
 
@@ -186,7 +189,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject editComment(JsonObject pageJson, String commentId, String parentId) {
-        System.out.println("Edit comment parentId: " + parentId + " commentId: " + commentId + " parentId: " + parentId);
+        logger.debug("Edit comment parentId: " + parentId + " commentId: " + commentId + " parentId: " + parentId);
         return pageJson;
     }
 
@@ -198,7 +201,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject removeStatus(JsonObject pageJson, String statusId) {
-        System.out.println("Remove statusId: " + statusId);
+        logger.debug("Remove statusId: " + statusId);
         return pageJson;
     }
 
@@ -211,7 +214,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject removeLike(JsonObject pageJson, String parentId, String senderId) {
-        System.out.println("Remove like parentId: " + parentId + " senderId: " + senderId);
+        logger.debug("Remove like parentId: " + parentId + " senderId: " + senderId);
         return pageJson;
     }
 
@@ -224,7 +227,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject removeComment(JsonObject pageJson, String commentId, String parentId) {
-        System.out.println("Remove comment parentId: " + parentId + " commentId: " + commentId + " parentId: " + parentId);
+        logger.debug("Remove comment parentId: " + parentId + " commentId: " + commentId + " parentId: " + parentId);
         return pageJson;
     }
 
@@ -237,7 +240,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject hideComment(JsonObject pageJson, String commentId, String parentId) {
-        System.out.println("Hide comment parentId: " + parentId + " commentId: " + commentId + " parentId: " + parentId);
+        logger.debug("Hide comment parentId: " + parentId + " commentId: " + commentId + " parentId: " + parentId);
         return pageJson;
     }
 
@@ -249,7 +252,7 @@ public class FacebookStreamer {
      * @return updated Facebook page JSON
      */
     private static JsonObject hideStatus(JsonObject pageJson, String statusId) {
-        System.out.println("Hide statusId: " + statusId);
+        logger.debug("Hide statusId: " + statusId);
         return pageJson;
     }
 
